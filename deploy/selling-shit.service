@@ -1,0 +1,13 @@
+[Unit]
+Description=Selling Shit marketplace draft app
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/drew/GitHub/apps/selling-shit
+ExecStart=/home/drew/GitHub/apps/selling-shit/env/bin/python -m gunicorn --bind 127.0.0.1:5055 app:app
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
