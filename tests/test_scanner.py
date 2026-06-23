@@ -1,5 +1,5 @@
-from selling_shit.scanner import scan_catalog_folder
-from selling_shit.storage import CatalogStore
+from scanner import scan_catalog_folder
+from storage import CatalogStore
 
 
 def test_scan_catalog_folder_imports_item_folder_with_description(tmp_path):

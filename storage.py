@@ -5,7 +5,7 @@ import re
 from pathlib import Path
 from uuid import uuid4
 
-from .models import ListingItem
+from models import ListingItem
 
 
 class CatalogStore:

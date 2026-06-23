@@ -1,8 +1,8 @@
 from datetime import datetime, timezone
 
-from selling_shit.drafts import generate_platform_drafts
-from selling_shit.models import ListingItem
-from selling_shit.storage import CatalogStore
+from drafts import generate_platform_drafts
+from models import ListingItem
+from storage import CatalogStore
 
 
 def test_generate_platform_drafts_have_marketplace_specific_fields():

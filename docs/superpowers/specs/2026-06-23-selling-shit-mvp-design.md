@@ -12,12 +12,12 @@ The MVP does not post to Nextdoor, eBay, or Facebook Marketplace APIs. It prepar
 
 The app stays intentionally small and file-backed:
 
-- `selling_shit/models.py` defines item and draft dataclasses.
-- `selling_shit/storage.py` owns JSON persistence in `data/catalog.json`.
-- `selling_shit/drafts.py` creates platform-specific drafts for Nextdoor, eBay, and Facebook Marketplace.
-- `selling_shit/scanner.py` imports folders from `catalog_inbox/`, using photos plus optional `description.txt`.
-- `selling_shit/__init__.py` wires Flask routes and upload handling.
-- `selling_shit/templates/home.html` and `selling_shit/static/style.css` provide the dashboard UI.
+- `models.py` defines item and draft dataclasses.
+- `storage.py` owns JSON persistence in `data/catalog.json`.
+- `drafts.py` creates platform-specific drafts for Nextdoor, eBay, and Facebook Marketplace.
+- `scanner.py` imports folders from `catalog_inbox/`, using photos plus optional `description.txt`.
+- `app.py` wires Flask routes and upload handling.
+- `templates/home.html` and `static/style.css` provide the dashboard UI.
 
 ## User Experience
 
@@ -40,4 +40,4 @@ Items appear as grey cards with fresh orange borders and a restrained 3D effect.
 
 ## Testing
 
-Tests cover draft generation, catalog persistence, folder scanning, upload intake, and dashboard rendering. The app should run with `python -m flask --app selling_shit:app --debug run --host=127.0.0.1 --port=5001`.
+Tests cover draft generation, catalog persistence, folder scanning, upload intake, and dashboard rendering. The app should run with `python -m flask --app app:app --debug run --host=127.0.0.1 --port=5001`.

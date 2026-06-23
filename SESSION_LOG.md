@@ -80,3 +80,19 @@
 
 **Next up:**
 - Replace the local image-quality heuristic with real vision-assisted selection when an AI provider/key is configured.
+
+## 2026-06-23 (flatten Python app files)
+
+**What we did:**
+- Moved the Flask app and helper modules out of the `selling_shit` package folder into the repo root.
+- Renamed the Flask entrypoint from `selling_shit:app` to `app:app`, because the repo folder name `selling-shit` cannot be imported as a Python module.
+- Moved `templates/` and `static/` to the repo root and removed the leftover generated `selling_shit` directory.
+- Updated tests and docs for the flat layout.
+
+**Where we stopped:**
+- The repo root is `G:\apps\selling-shit`.
+- The app entry command is now `python -m flask --app app:app --debug run --host=127.0.0.1 --port=5001`.
+- Fresh verification passed: `pytest -q` reported `16 passed`.
+
+**Next up:**
+- Continue feature work against root files such as `app.py`, `models.py`, `photos.py`, `templates/home.html`, and `static/style.css`.

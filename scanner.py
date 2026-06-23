@@ -6,8 +6,8 @@ from pathlib import Path
 
 from werkzeug.utils import secure_filename
 
-from .models import ListingItem
-from .storage import CatalogStore
+from models import ListingItem
+from storage import CatalogStore
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".heic"}
 

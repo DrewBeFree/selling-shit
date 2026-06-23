@@ -6,10 +6,10 @@ from pathlib import Path
 from flask import Flask, abort, render_template, request, send_from_directory
 from werkzeug.utils import secure_filename
 
-from .drafts import generate_platform_drafts
-from .photos import select_featured_photo_indices
-from .scanner import scan_catalog_folder
-from .storage import CatalogStore
+from drafts import generate_platform_drafts
+from photos import select_featured_photo_indices
+from scanner import scan_catalog_folder
+from storage import CatalogStore
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DEFAULT_UPLOAD_DIR = BASE_DIR / "uploads"

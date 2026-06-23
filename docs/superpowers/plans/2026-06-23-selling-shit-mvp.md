@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- App package remains importable as `selling_shit:app`.
+- App remains importable as `app:app` from the repo root.
 - The app runs on `127.0.0.1:5001` with Flask debug mode.
 - Uploaded and scanned photos are local-only and ignored by Git.
 - Platform drafts are generated locally and do not post to external APIs.
@@ -22,9 +22,9 @@
 ### Task 1: Domain Modules
 
 **Files:**
-- Create: `selling_shit/models.py`
-- Create: `selling_shit/drafts.py`
-- Create: `selling_shit/storage.py`
+- Create: `models.py`
+- Create: `drafts.py`
+- Create: `storage.py`
 - Test: `tests/test_catalog_core.py`
 
 **Interfaces:**
@@ -39,7 +39,7 @@
 ### Task 2: Folder Scanner
 
 **Files:**
-- Create: `selling_shit/scanner.py`
+- Create: `scanner.py`
 - Test: `tests/test_scanner.py`
 
 **Interfaces:**
@@ -55,7 +55,7 @@
 ### Task 3: Flask Routes
 
 **Files:**
-- Modify: `selling_shit/__init__.py`
+- Modify: `app.py`
 - Test: `tests/test_app.py`
 
 **Interfaces:**
@@ -71,8 +71,8 @@
 ### Task 4: Dashboard UI
 
 **Files:**
-- Modify: `selling_shit/templates/home.html`
-- Modify: `selling_shit/static/style.css`
+- Modify: `templates/home.html`
+- Modify: `static/style.css`
 - Test: `tests/test_app.py`
 
 **Interfaces:**

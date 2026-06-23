@@ -2,8 +2,8 @@ from pathlib import Path
 
 from PIL import Image
 
-from selling_shit.models import ListingItem
-from selling_shit.photos import select_featured_photo_indices
+from models import ListingItem
+from photos import select_featured_photo_indices
 
 
 def _write_image(path: Path, size: tuple[int, int], color: tuple[int, int, int]) -> None:

@@ -5,7 +5,7 @@ from pathlib import Path
 
 from PIL import Image, ImageFilter, ImageStat
 
-from .models import ListingItem
+from models import ListingItem
 
 
 def select_featured_photo_indices(

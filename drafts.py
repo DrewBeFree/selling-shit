@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from .models import ListingItem, PlatformDraft
+from models import ListingItem, PlatformDraft
 
 
 def _price_text(item: ListingItem) -> str:

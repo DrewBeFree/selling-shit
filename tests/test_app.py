@@ -1,6 +1,6 @@
 from io import BytesIO
 
-from selling_shit import app
+from app import app
 
 
 def test_home_page_loads_listing_form():
