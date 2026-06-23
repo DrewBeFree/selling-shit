@@ -232,3 +232,18 @@
 
 **Next up:**
 - Bump `APP_VERSION` for future user-visible changes in the `0.2.x` series.
+
+## 2026-06-23 (footer copyright polish)
+
+**What we did:**
+- Updated the footer copyright from `DrewBeFree` to `Andrew Webb`.
+- Bumped the app version from `0.2.0` to `0.2.1`.
+- Added more top and bottom spacing so the footer reads as a real footer rather than tight metadata.
+- Updated the footer regression test for the new version/name.
+
+**Where we stopped:**
+- The footer polish is committed and pushed to both `dev` and `main` at `d886370`.
+- Atlas `selling-shit.service` was restarted after the push.
+
+**Next up:**
+- Continue bumping `APP_VERSION` within `0.2.x` for future small visible changes.
