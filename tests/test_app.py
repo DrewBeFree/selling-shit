@@ -242,9 +242,10 @@ def test_dashboard_renders_listing_value_summary_and_marketplace_icons(tmp_path)
     response = app.test_client().get("/")
 
     assert response.status_code == 200
+    assert b'analytics-panel' in response.data
     assert b"Live value" in response.data
     assert b"Sold value" in response.data
-    assert b"Since listing" in response.data
+    assert b"Since listing" not in response.data
     assert b"$50" in response.data
     assert b"$18" in response.data
     assert b"Auction ends" in response.data
