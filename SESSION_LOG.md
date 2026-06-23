@@ -166,3 +166,18 @@
 - In Cloudflare DNS for `drewbefree.com`, create a proxied CNAME/Tunnel record: `sell` -> `188e5c59-c931-49a2-84c9-6646aadcd3c9.cfargotunnel.com`.
 - Add `sell.drewbefree.com` to the Drew-only Cloudflare Access app before use.
 - Delete the accidental Kybernet-zone DNS record `sell.drewbefree.com.kybernet.tech`.
+
+## 2026-06-23 (sell domain live)
+
+**What we did:**
+- Verified `sell.drewbefree.com` now resolves through Cloudflare.
+- Verified `https://sell.drewbefree.com/` returns HTTP 200.
+- Rechecked Atlas service health: `selling-shit.service` and `cloudflared.service` are active, and the local Gunicorn endpoint still returns HTTP 200.
+
+**Where we stopped:**
+- The public hostname is live at `https://sell.drewbefree.com/`.
+- The app is served from Atlas via the existing Cloudflare tunnel.
+
+**Next up:**
+- Confirm whether `sell.drewbefree.com` should stay behind Drew-only Cloudflare Access or be public.
+- Delete the accidental Kybernet-zone DNS record `sell.drewbefree.com.kybernet.tech` if it still exists.
