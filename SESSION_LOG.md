@@ -272,9 +272,11 @@
 - Updated `HANDOFF.md` with the empty catalogue note and Hermes card reference.
 
 **Where we stopped:**
+- Revert and log commits are pushed to both `dev` and `main` at `a865c65`.
 - App code is back to `v0.2.1`; the duplicate `ops-dashboard` block is gone.
 - `pytest -q` passed with `27 passed`.
-- Local `http://127.0.0.1:5001/` returned HTTP 200, rendered `v0.2.1`, did not render `ops-dashboard`, and showed the empty catalogue state.
+- Local `http://127.0.0.1:5001/` and hosted `https://sell.drewbefree.com/` returned HTTP 200, rendered `v0.2.1`, did not render `ops-dashboard`, and showed the empty catalogue state.
+- Atlas `selling-shit.service` was restarted and is active.
 
 **Next up:**
-- Push the revert/log commits through `main` and restart Atlas if not already done.
+- Add UI controls for sold state, sold price, auction metadata, deadlines, and listing notes when ready.
