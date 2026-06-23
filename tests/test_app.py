@@ -1,4 +1,5 @@
 from io import BytesIO
+from pathlib import Path
 
 from app import app
 
@@ -197,6 +198,20 @@ def test_dashboard_renders_featured_photo_carousel(tmp_path):
     assert response.data.count(b'aria-label="Show photo') == 4
     assert b'id="imagePreviewModal"' in response.data
     assert b'data-photo-src="/items/item-1/photos/' in response.data
+
+
+def test_photo_preview_opens_only_from_main_image_click():
+    template = Path("templates/home.html").read_text(encoding="utf-8")
+    stylesheet = Path("static/style.css").read_text(encoding="utf-8")
+
+    assert 'data-preview-open' in template
+    assert 'mainButton.addEventListener("click"' in template
+    assert 'thumb.addEventListener("mouseenter"' in template
+    assert 'thumb.addEventListener("focus"' in template
+    assert 'imagePreviewModal.addEventListener("click"' in template
+    assert 'trigger.addEventListener("mouseenter", () => showPreview(trigger));' not in template
+    assert 'imagePreviewModal.addEventListener("mouseleave"' not in template
+    assert ".image-preview-modal::backdrop" in stylesheet
 
 
 def test_dashboard_renders_listing_value_summary_and_marketplace_icons(tmp_path):

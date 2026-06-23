@@ -537,6 +537,11 @@ dialog::backdrop {
   padding: 18px;
 }
 
+.image-preview-modal::backdrop {
+  background: rgba(12, 11, 10, 0.76);
+  backdrop-filter: blur(2px);
+}
+
 .image-preview-modal img {
   display: block;
   width: 100%;
