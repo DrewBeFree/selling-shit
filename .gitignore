@@ -4,4 +4,6 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 uploads/
+data/
+catalog_inbox/
 instance/
