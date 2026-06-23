@@ -31,7 +31,7 @@
         </div>
       </form>
 
-      <div class="stats-grid" aria-label="catalog summary">
+      <div class="stats-grid analytics-panel" aria-label="catalog analytics">
         <article>
           <span>Total</span>
           <strong>{{ summary.total }}</strong>
@@ -48,22 +48,15 @@
           <span>Responses</span>
           <strong>{{ summary.responses }}</strong>
         </article>
+        <article class="value-card">
+          <span>Live value</span>
+          <strong>{{ summary.live_value }}</strong>
+        </article>
+        <article class="value-card">
+          <span>Sold value</span>
+          <strong>{{ summary.sold_value }}</strong>
+        </article>
       </div>
-    </section>
-
-    <section class="money-summary" aria-label="listing value summary">
-      <article>
-        <span>Live value</span>
-        <strong>{{ summary.live_value }}</strong>
-      </article>
-      <article>
-        <span>Sold value</span>
-        <strong>{{ summary.sold_value }}</strong>
-      </article>
-      <article>
-        <span>Since listing</span>
-        <strong>{{ summary.listing_age }}</strong>
-      </article>
     </section>
 
     <section class="platform-strip" aria-label="draft platforms">
