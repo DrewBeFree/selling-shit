@@ -14,3 +14,21 @@
 
 **Next up:**
 - Decide whether to keep this as the baseline app, add fuller listing-generation requirements, or configure a remote before merging/pushing.
+
+## 2026-06-23 (marketplace drafting MVP)
+
+**What we did:**
+- Treated the user's original overnight request as the source of truth and wrote a design doc plus implementation plan under `docs/superpowers/`.
+- Added tests for catalog persistence, platform-specific draft generation, folder scanning, upload intake, scan route, and dashboard rendering.
+- Implemented JSON-backed catalog storage, marketplace draft generators for Nextdoor/eBay/Facebook Marketplace, and a local folder scanner for `catalog_inbox/`.
+- Rebuilt the Flask dashboard with drag/drop photo intake, modal description capture, scan action, summary metrics, orange-bordered grey cards, 3D card styling, status indicators, and per-platform draft panels.
+- Updated `.gitignore` so local `uploads/`, `data/`, and `catalog_inbox/` stay out of Git.
+
+**Where we stopped:**
+- The repo is clean on branch `dev`.
+- Fresh verification passed: `pytest -q` reported `8 passed`.
+- Flask responded with HTTP 200 at `http://127.0.0.1:5001/`.
+- No Git remote is configured, so nothing was pushed.
+
+**Next up:**
+- Add real AI-assisted draft rewriting and marketplace-specific validation rules, or configure the GitHub remote and decide when to merge `dev`.
