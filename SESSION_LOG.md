@@ -128,3 +128,20 @@
 
 **Next up:**
 - Add item-level controls for sold/auction metadata so those analytics can be edited from the UI.
+
+## 2026-06-23 (archive workflow)
+
+**What we did:**
+- Added archive state to listing items with `archived_at` and `previous_status`.
+- Added storage methods to archive and restore items while hiding archived items from the main dashboard and summary.
+- Added `POST /items/<id>/archive`, `POST /items/<id>/restore`, and `GET /archive`.
+- Added archive buttons to dashboard cards and a dedicated archive page with restore actions.
+- Updated tests for archive/restore storage behavior and route behavior.
+
+**Where we stopped:**
+- The repo is clean on branch `dev` after the archive feature commit.
+- Fresh verification passed: `pytest -q` reported `22 passed`.
+- The live dashboard and `/archive` page both returned HTTP 200.
+
+**Next up:**
+- Add item-level edit controls for sold state, auction metadata, and archived item notes.
