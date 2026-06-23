@@ -73,6 +73,7 @@ h1 {
 .drop-zone,
 .item-card,
 .stats-grid article,
+.money-summary article,
 .draft-panel,
 .empty-state,
 dialog {
@@ -184,6 +185,35 @@ dt {
   display: block;
   font-size: 2.3rem;
   line-height: 1;
+}
+
+.money-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 0 0 20px;
+}
+
+.money-summary article {
+  background:
+    linear-gradient(145deg, rgba(255, 122, 24, 0.1), transparent),
+    var(--card-soft);
+  padding: 18px;
+}
+
+.money-summary span {
+  color: var(--muted);
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.money-summary strong {
+  display: block;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  line-height: 1;
+  margin-top: 6px;
 }
 
 .platform-strip {
@@ -349,9 +379,49 @@ dt {
   gap: 10px;
 }
 
+.draft-heading h3 {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
 .draft-heading h3,
 .draft-panel h4 {
   margin-bottom: 8px;
+}
+
+.market-icon {
+  align-items: center;
+  border-radius: 50%;
+  color: #fff;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 0.78rem;
+  font-weight: 900;
+  height: 24px;
+  justify-content: center;
+  line-height: 1;
+  width: 24px;
+}
+
+.market-icon.nextdoor {
+  background: #1f8f4d;
+}
+
+.market-icon.ebay {
+  background: #e53238;
+}
+
+.market-icon.facebook {
+  background: #1877f2;
+}
+
+.auction-time {
+  background: rgba(255, 122, 24, 0.12);
+  border: 1px solid rgba(255, 122, 24, 0.58);
+  border-radius: 6px;
+  margin-bottom: 10px;
+  padding: 8px 10px;
 }
 
 .draft-panel p,
@@ -466,6 +536,7 @@ dialog::backdrop {
   }
 
   .stats-grid,
+  .money-summary,
   .signals {
     grid-template-columns: 1fr;
   }

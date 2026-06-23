@@ -25,6 +25,8 @@ def generate_platform_drafts(item: ListingItem) -> list[PlatformDraft]:
                 "price": price,
                 "pickup": "Local pickup",
             },
+            icon_label="N",
+            icon_class="nextdoor",
         ),
         PlatformDraft(
             platform="eBay",
@@ -40,7 +42,10 @@ def generate_platform_drafts(item: ListingItem) -> list[PlatformDraft]:
                 "condition": "Used",
                 "price": price,
                 "fulfillment": "Local pickup / shipping quote",
+                **({"auction ends": item.auction_time_left_label} if item.auction_time_left_label else {}),
             },
+            icon_label="e",
+            icon_class="ebay",
         ),
         PlatformDraft(
             platform="Facebook Marketplace",
@@ -55,5 +60,7 @@ def generate_platform_drafts(item: ListingItem) -> list[PlatformDraft]:
                 "price": price,
                 "fulfillment": "Pickup available",
             },
+            icon_label="f",
+            icon_class="facebook",
         ),
     ]

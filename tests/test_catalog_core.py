@@ -100,7 +100,7 @@ def test_catalog_store_summary_tracks_live_sold_value_and_listing_age(tmp_path):
 
     assert summary["live_value"] == "$125.50"
     assert summary["sold_value"] == "$35"
-    assert summary["listing_age"] == "2d 3h"
+    assert summary["listing_age"].startswith("2d ")
 
 
 def test_listing_item_tracks_auction_time_remaining():

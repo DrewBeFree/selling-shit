@@ -3,9 +3,10 @@ from __future__ import annotations
 import json
 import re
 from pathlib import Path
+from decimal import Decimal, InvalidOperation
 from uuid import uuid4
 
-from models import ListingItem
+from models import ListingItem, utc_now
 
 
 class CatalogStore:
@@ -49,11 +50,26 @@ class CatalogStore:
 
     def summary(self) -> dict[str, int]:
         items = self.list_items()
+        live_items = [item for item in items if item.status != "sold"]
+        sold_items = [item for item in items if item.status == "sold"]
+        oldest_live = min((item.created_at for item in live_items), default=None)
         return {
             "total": len(items),
             "drafting": sum(1 for item in items if item.status == "drafting"),
             "ready": sum(1 for item in items if item.status == "ready"),
+            "sold": len(sold_items),
             "responses": sum(item.response_count for item in items),
+            "live_value": _money(sum((_money_value(item.price) for item in live_items), Decimal("0"))),
+            "sold_value": _money(
+                sum(
+                    (
+                        _money_value(item.sold_price or item.price)
+                        for item in sold_items
+                    ),
+                    Decimal("0"),
+                )
+            ),
+            "listing_age": _age_label(oldest_live),
         }
 
     def _read(self) -> dict[str, list[dict]]:
@@ -68,3 +84,34 @@ class CatalogStore:
     def _new_item_id(self, title: str) -> str:
         slug = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-") or "item"
         return f"{slug}-{uuid4().hex[:8]}"
+
+
+def _money_value(value: str) -> Decimal:
+    cleaned = re.sub(r"[^0-9.]", "", value or "")
+    if not cleaned:
+        return Decimal("0")
+    try:
+        return Decimal(cleaned)
+    except InvalidOperation:
+        return Decimal("0")
+
+
+def _money(value: Decimal) -> str:
+    if value == value.to_integral():
+        return f"${value.quantize(Decimal('1'))}"
+    return f"${value.quantize(Decimal('0.01'))}"
+
+
+def _age_label(started_at) -> str:
+    if started_at is None:
+        return "No live listings"
+
+    delta = utc_now() - started_at
+    if delta.total_seconds() <= 0:
+        return "Just listed"
+
+    days = delta.days
+    hours = delta.seconds // 3600
+    if days:
+        return f"{days}d {hours}h"
+    return f"{hours}h"

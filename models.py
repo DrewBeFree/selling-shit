@@ -21,6 +21,8 @@ class PlatformDraft:
     title: str
     body: str
     fields: dict[str, str]
+    icon_label: str
+    icon_class: str
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -35,7 +37,11 @@ class ListingItem:
     photo_paths: list[str]
     created_at: datetime = field(default_factory=utc_now)
     deadline_at: datetime | None = None
+    auction_ends_at: datetime | None = None
+    sold_at: datetime | None = None
     status: str = "drafting"
+    listing_type: str = "fixed_price"
+    sold_price: str = ""
     watch_count: int = 0
     response_count: int = 0
     source_folder: str | None = None
@@ -52,15 +58,14 @@ class ListingItem:
         if self.deadline_at is None:
             return "No deadline"
 
-        delta = self.deadline_at - utc_now()
-        if delta.total_seconds() <= 0:
-            return "Expired"
+        return format_time_delta(self.deadline_at, expired_label="Expired")
 
-        days = delta.days
-        hours = delta.seconds // 3600
-        if days:
-            return f"{days}d {hours}h"
-        return f"{hours}h"
+    @property
+    def auction_time_left_label(self) -> str:
+        if self.listing_type != "auction" or self.auction_ends_at is None:
+            return ""
+
+        return format_time_delta(self.auction_ends_at, expired_label="Ended")
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -71,7 +76,11 @@ class ListingItem:
             "photo_paths": self.photo_paths,
             "created_at": self.created_at.isoformat(),
             "deadline_at": self.deadline_at.isoformat() if self.deadline_at else None,
+            "auction_ends_at": self.auction_ends_at.isoformat() if self.auction_ends_at else None,
+            "sold_at": self.sold_at.isoformat() if self.sold_at else None,
             "status": self.status,
+            "listing_type": self.listing_type,
+            "sold_price": self.sold_price,
             "watch_count": self.watch_count,
             "response_count": self.response_count,
             "source_folder": self.source_folder,
@@ -87,8 +96,24 @@ class ListingItem:
             photo_paths=list(data.get("photo_paths", [])),
             created_at=parse_datetime(data.get("created_at")) or utc_now(),
             deadline_at=parse_datetime(data.get("deadline_at")),
+            auction_ends_at=parse_datetime(data.get("auction_ends_at")),
+            sold_at=parse_datetime(data.get("sold_at")),
             status=data.get("status", "drafting"),
+            listing_type=data.get("listing_type", "fixed_price"),
+            sold_price=data.get("sold_price", ""),
             watch_count=int(data.get("watch_count", 0)),
             response_count=int(data.get("response_count", 0)),
             source_folder=data.get("source_folder"),
         )
+
+
+def format_time_delta(target: datetime, expired_label: str) -> str:
+    delta = target - utc_now()
+    if delta.total_seconds() <= 0:
+        return expired_label
+
+    days = delta.days
+    hours = delta.seconds // 3600
+    if days:
+        return f"{days}d {hours}h"
+    return f"{hours}h"

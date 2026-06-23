@@ -51,6 +51,21 @@
       </div>
     </section>
 
+    <section class="money-summary" aria-label="listing value summary">
+      <article>
+        <span>Live value</span>
+        <strong>{{ summary.live_value }}</strong>
+      </article>
+      <article>
+        <span>Sold value</span>
+        <strong>{{ summary.sold_value }}</strong>
+      </article>
+      <article>
+        <span>Since listing</span>
+        <strong>{{ summary.listing_age }}</strong>
+      </article>
+    </section>
+
     <section class="platform-strip" aria-label="draft platforms">
       {% for platform in platforms %}
         <span>{{ platform }}</span>
@@ -131,9 +146,15 @@
                 {% for draft in platform_drafts[item.id] %}
                   <section class="draft-panel">
                     <div class="draft-heading">
-                      <h3>{{ draft.platform }}</h3>
+                      <h3>
+                        <span class="market-icon {{ draft.icon_class }}" aria-hidden="true">{{ draft.icon_label }}</span>
+                        {{ draft.platform }}
+                      </h3>
                       <span>{{ draft.fields.price }}</span>
                     </div>
+                    {% if draft.platform == "eBay" and draft.fields.get("auction ends") %}
+                      <p class="auction-time"><strong>Auction ends:</strong> {{ draft.fields.get("auction ends") }}</p>
+                    {% endif %}
                     <h4>{{ draft.title }}</h4>
                     <p>{{ draft.body }}</p>
                     <ul>
