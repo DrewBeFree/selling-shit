@@ -181,3 +181,23 @@
 **Next up:**
 - Confirm whether `sell.drewbefree.com` should stay behind Drew-only Cloudflare Access or be public.
 - Delete the accidental Kybernet-zone DNS record `sell.drewbefree.com.kybernet.tech` if it still exists.
+
+## 2026-06-23 (catalogue folder lifecycle)
+
+**What we did:**
+- Changed the app's default local media layout to `catalogue/inbox`, `catalogue/active`, and `catalogue/archive`.
+- Fixed the flattened app base path so default data/media now lives under the repo instead of one level up in `G:\apps`.
+- Updated scans so imported item folders move from `catalogue/inbox` into `catalogue/active`.
+- Updated uploads so new drag/drop listings save under `catalogue/active`.
+- Updated archive/restore routes so item folders physically move between `catalogue/active` and `catalogue/archive`, with photo paths rewritten.
+- Added a visible `Sold` analytics card and changed sold count/value to include archived sold items.
+- Migrated the existing local catalog/media into `G:\apps\selling-shit\catalogue` non-destructively.
+
+**Where we stopped:**
+- The repo is clean on branch `dev`; `main`, `dev`, and both remotes point at `188a11e`.
+- Fresh verification passed: `pytest -q` reported `25 passed`.
+- Local Flask at `http://127.0.0.1:5001/` and hosted `https://sell.drewbefree.com/` both returned HTTP 200 and rendered the new Sold/catalogue UI.
+- Atlas `selling-shit.service` was restarted and returned HTTP 200 through Gunicorn.
+
+**Next up:**
+- Decide whether to delete the old fallback local folders `G:\apps\data`, `G:\apps\uploads`, `G:\apps\catalog_inbox`, `G:\apps\selling-shit\uploads`, and `G:\apps\selling-shit\catalog_inbox` after a quick visual check.
