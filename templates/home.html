@@ -16,6 +16,7 @@
       <form method="post" action="{{ url_for('scan_catalog') }}">
         <button class="scan-button" type="submit">Scan catalogue</button>
       </form>
+      <a class="archive-link" href="{{ url_for('archive') }}">Archive</a>
     </header>
 
     <section class="command-deck">
@@ -111,7 +112,12 @@
                   <span class="status-pill">{{ item.status }}</span>
                   <h2>{{ item.title }}</h2>
                 </div>
-                <strong class="price">${{ item.price or "TBD" }}</strong>
+                <div class="item-actions">
+                  <strong class="price">${{ item.price or "TBD" }}</strong>
+                  <form method="post" action="{{ url_for('archive_item', item_id=item.id) }}">
+                    <button class="text-action" type="submit">Archive</button>
+                  </form>
+                </div>
               </div>
 
               <p class="description">{{ item.description or "Description needed." }}</p>

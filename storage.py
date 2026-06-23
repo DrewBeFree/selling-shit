@@ -16,6 +16,18 @@ class CatalogStore:
     def list_items(self) -> list[ListingItem]:
         data = self._read()
         items = [ListingItem.from_dict(item) for item in data.get("items", [])]
+        items = [item for item in items if item.status != "archived"]
+        return sorted(items, key=lambda item: item.created_at, reverse=True)
+
+    def list_archived_items(self) -> list[ListingItem]:
+        data = self._read()
+        items = [ListingItem.from_dict(item) for item in data.get("items", [])]
+        archived = [item for item in items if item.status == "archived"]
+        return sorted(archived, key=lambda item: item.archived_at or item.created_at, reverse=True)
+
+    def list_all_items(self) -> list[ListingItem]:
+        data = self._read()
+        items = [ListingItem.from_dict(item) for item in data.get("items", [])]
         return sorted(items, key=lambda item: item.created_at, reverse=True)
 
     def add_item(
@@ -41,12 +53,39 @@ class CatalogStore:
         return item
 
     def upsert_item(self, item: ListingItem) -> None:
-        items = [existing for existing in self.list_items() if existing.id != item.id]
+        items = [existing for existing in self.list_all_items() if existing.id != item.id]
         items.append(item)
         self._write({"items": [existing.to_dict() for existing in items]})
 
     def has_source_folder(self, folder: str) -> bool:
-        return any(item.source_folder == folder for item in self.list_items())
+        return any(item.source_folder == folder for item in self.list_all_items())
+
+    def archive_item(self, item_id: str) -> ListingItem | None:
+        item = self.get_item(item_id)
+        if item is None:
+            return None
+
+        if item.status != "archived":
+            item.previous_status = item.status
+            item.status = "archived"
+            item.archived_at = utc_now()
+            self.upsert_item(item)
+        return item
+
+    def restore_item(self, item_id: str) -> ListingItem | None:
+        item = self.get_item(item_id)
+        if item is None:
+            return None
+
+        if item.status == "archived":
+            item.status = item.previous_status or "drafting"
+            item.previous_status = ""
+            item.archived_at = None
+            self.upsert_item(item)
+        return item
+
+    def get_item(self, item_id: str) -> ListingItem | None:
+        return next((item for item in self.list_all_items() if item.id == item_id), None)
 
     def summary(self) -> dict[str, int]:
         items = self.list_items()

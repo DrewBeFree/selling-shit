@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Archive - Selling Shit</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Stored listings</p>
+        <h1>Archive</h1>
+      </div>
+      <a class="archive-link" href="{{ url_for('home') }}">Dashboard</a>
+    </header>
+
+    <section class="catalogue">
+      {% if items %}
+        {% for item in items %}
+          <article class="archive-card">
+            <div class="archive-media">
+              {% set photo_indices = featured_photos[item.id] %}
+              {% if photo_indices %}
+                <img src="{{ url_for('item_photo', item_id=item.id, photo_index=photo_indices[0]) }}" alt="{{ item.title }}">
+              {% else %}
+                <div class="photo-placeholder">No photo</div>
+              {% endif %}
+            </div>
+            <div class="archive-body">
+              <span class="status-pill">{{ item.status }}</span>
+              <h2>{{ item.title }}</h2>
+              <p>{{ item.description or "No description saved." }}</p>
+              <dl class="signals">
+                <div>
+                  <dt>Price</dt>
+                  <dd>${{ item.price or "TBD" }}</dd>
+                </div>
+                <div>
+                  <dt>Archived</dt>
+                  <dd>{{ item.archived_at.strftime("%b") if item.archived_at else "Unknown" }} {{ item.archived_at.day if item.archived_at else "" }}</dd>
+                </div>
+              </dl>
+              <form method="post" action="{{ url_for('restore_item', item_id=item.id) }}">
+                <button class="scan-button" type="submit">Restore</button>
+              </form>
+            </div>
+          </article>
+        {% endfor %}
+      {% else %}
+        <section class="empty-state">
+          <h2>No archived items</h2>
+          <p>Archived listings will appear here when you move them off the main dashboard.</p>
+        </section>
+      {% endif %}
+    </section>
+  </main>
+</body>
+</html>

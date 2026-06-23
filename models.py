@@ -39,7 +39,9 @@ class ListingItem:
     deadline_at: datetime | None = None
     auction_ends_at: datetime | None = None
     sold_at: datetime | None = None
+    archived_at: datetime | None = None
     status: str = "drafting"
+    previous_status: str = ""
     listing_type: str = "fixed_price"
     sold_price: str = ""
     watch_count: int = 0
@@ -78,7 +80,9 @@ class ListingItem:
             "deadline_at": self.deadline_at.isoformat() if self.deadline_at else None,
             "auction_ends_at": self.auction_ends_at.isoformat() if self.auction_ends_at else None,
             "sold_at": self.sold_at.isoformat() if self.sold_at else None,
+            "archived_at": self.archived_at.isoformat() if self.archived_at else None,
             "status": self.status,
+            "previous_status": self.previous_status,
             "listing_type": self.listing_type,
             "sold_price": self.sold_price,
             "watch_count": self.watch_count,
@@ -98,7 +102,9 @@ class ListingItem:
             deadline_at=parse_datetime(data.get("deadline_at")),
             auction_ends_at=parse_datetime(data.get("auction_ends_at")),
             sold_at=parse_datetime(data.get("sold_at")),
+            archived_at=parse_datetime(data.get("archived_at")),
             status=data.get("status", "drafting"),
+            previous_status=data.get("previous_status", ""),
             listing_type=data.get("listing_type", "fixed_price"),
             sold_price=data.get("sold_price", ""),
             watch_count=int(data.get("watch_count", 0)),

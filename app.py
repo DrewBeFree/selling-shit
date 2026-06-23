@@ -3,7 +3,7 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
-from flask import Flask, abort, render_template, request, send_from_directory
+from flask import Flask, abort, redirect, render_template, request, send_from_directory, url_for
 from werkzeug.utils import secure_filename
 
 from drafts import generate_platform_drafts
@@ -27,6 +27,21 @@ app.config.update(
 @app.route("/", methods=["GET"])
 def home():
     return _render_dashboard()
+
+
+@app.route("/archive", methods=["GET"])
+def archive():
+    store = _store()
+    archived_items = store.list_archived_items()
+    featured_photos = {
+        item.id: select_featured_photo_indices(item, _upload_dir().parent)
+        for item in archived_items
+    }
+    return render_template(
+        "archive.html",
+        items=archived_items,
+        featured_photos=featured_photos,
+    )
 
 
 @app.route("/items", methods=["POST"])
@@ -68,6 +83,20 @@ def scan_catalog():
     return _render_dashboard()
 
 
+@app.route("/items/<item_id>/archive", methods=["POST"])
+def archive_item(item_id: str):
+    if _store().archive_item(item_id) is None:
+        abort(404)
+    return redirect(url_for("home"))
+
+
+@app.route("/items/<item_id>/restore", methods=["POST"])
+def restore_item(item_id: str):
+    if _store().restore_item(item_id) is None:
+        abort(404)
+    return redirect(url_for("archive"))
+
+
 @app.route("/uploads/<item_id>/<filename>")
 def uploaded_file(item_id: str, filename: str):
     return send_from_directory(_upload_dir() / secure_filename(item_id), filename)
@@ -75,7 +104,7 @@ def uploaded_file(item_id: str, filename: str):
 
 @app.route("/items/<item_id>/photos/<int:photo_index>")
 def item_photo(item_id: str, photo_index: int):
-    item = next((listing for listing in _store().list_items() if listing.id == item_id), None)
+    item = _store().get_item(item_id)
     if item is None or photo_index < 0 or photo_index >= len(item.photo_paths):
         abort(404)
 
