@@ -32,3 +32,19 @@
 
 **Next up:**
 - Add real AI-assisted draft rewriting and marketplace-specific validation rules, or configure the GitHub remote and decide when to merge `dev`.
+
+## 2026-06-23 (flatten repo folder)
+
+**What we did:**
+- Moved the Git repo root up from `G:\apps\selling-shit\selling-shit` to `G:\apps\selling-shit`.
+- Kept the Python package folder as `selling_shit`, since Flask imports still use `selling_shit:app`.
+- Removed the old nested `selling-shit` folder after verifying it only contained leftover Git internals.
+- Restarted Flask from the new root with `--no-reload` to clear the stale deleted-path reloader process.
+
+**Where we stopped:**
+- The repo is clean on branch `dev` at `G:\apps\selling-shit`.
+- Fresh verification passed: `pytest -q` reported `8 passed`.
+- Flask responded with HTTP 200 at `http://127.0.0.1:5001/`.
+
+**Next up:**
+- Continue feature work from `G:\apps\selling-shit`; do not use the old nested path.
