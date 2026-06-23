@@ -33,9 +33,9 @@ def test_pages_render_version_and_copyright_footer(tmp_path):
     home_response = client.get("/")
     archive_response = client.get("/archive")
 
-    assert b"v0.2.2" in home_response.data
+    assert b"v0.2.1" in home_response.data
     assert b"&copy; 2026 Andrew Webb" in home_response.data
-    assert b"v0.2.2" in archive_response.data
+    assert b"v0.2.1" in archive_response.data
     assert b"&copy; 2026 Andrew Webb" in archive_response.data
 
 
@@ -290,14 +290,9 @@ def test_dashboard_renders_listing_value_summary_and_marketplace_icons(tmp_path)
 
     assert response.status_code == 200
     assert b'analytics-panel' in response.data
-    assert b'ops-dashboard' in response.data
     assert b"Sold" in response.data
     assert b"Live value" in response.data
     assert b"Sold value" in response.data
-    assert b"Archived" in response.data
-    assert b"Avg live ask" in response.data
-    assert b"Sell-through" in response.data
-    assert b"Needs photos" in response.data
     assert b"Since listing" not in response.data
     assert b"$50" in response.data
     assert b"$18" in response.data

@@ -136,52 +136,6 @@ def test_catalog_store_summary_tracks_sold_totals_across_archived_items(tmp_path
     assert summary["sold_value"] == "$55"
 
 
-def test_catalog_store_summary_includes_operational_metrics(tmp_path):
-    store = CatalogStore(tmp_path / "catalog.json")
-    store.upsert_item(
-        ListingItem(
-            id="ready-1",
-            title="Ready controller",
-            description="",
-            price="50",
-            photo_paths=["catalogue/active/ready-1/front.jpg", "catalogue/active/ready-1/back.jpg"],
-            status="ready",
-            response_count=2,
-        )
-    )
-    store.upsert_item(
-        ListingItem(
-            id="draft-1",
-            title="Draft chair",
-            description="",
-            price="30",
-            photo_paths=[],
-            status="drafting",
-        )
-    )
-    store.upsert_item(
-        ListingItem(
-            id="sold-1",
-            title="Sold lamp",
-            description="",
-            price="25",
-            sold_price="20",
-            photo_paths=["catalogue/archive/sold-1/lamp.jpg"],
-            status="archived",
-            previous_status="sold",
-        )
-    )
-
-    summary = store.summary()
-
-    assert summary["all_items"] == 3
-    assert summary["archived"] == 1
-    assert summary["no_photo"] == 1
-    assert summary["photo_count"] == 3
-    assert summary["average_live_price"] == "$40"
-    assert summary["sell_through"] == "33%"
-
-
 def test_catalog_store_archives_and_restores_items(tmp_path):
     store = CatalogStore(tmp_path / "catalog.json")
     item = store.add_item(

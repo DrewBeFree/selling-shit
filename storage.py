@@ -87,30 +87,18 @@ class CatalogStore:
     def get_item(self, item_id: str) -> ListingItem | None:
         return next((item for item in self.list_all_items() if item.id == item_id), None)
 
-    def summary(self) -> dict[str, int | str]:
+    def summary(self) -> dict[str, int]:
         items = self.list_items()
         all_items = self.list_all_items()
         live_items = [item for item in items if item.status != "sold"]
         sold_items = [item for item in all_items if _is_sold(item)]
-        archived_items = [item for item in all_items if item.status == "archived"]
-        live_prices = [_money_value(item.price) for item in live_items if _money_value(item.price) > 0]
         oldest_live = min((item.created_at for item in live_items), default=None)
         return {
             "total": len(items),
-            "all_items": len(all_items),
-            "archived": len(archived_items),
             "drafting": sum(1 for item in items if item.status == "drafting"),
             "ready": sum(1 for item in items if item.status == "ready"),
             "sold": len(sold_items),
             "responses": sum(item.response_count for item in items),
-            "no_photo": sum(1 for item in items if not item.photo_paths),
-            "photo_count": sum(len(item.photo_paths) for item in all_items),
-            "average_live_price": _money(
-                sum(live_prices, Decimal("0")) / len(live_prices)
-                if live_prices
-                else Decimal("0")
-            ),
-            "sell_through": _percent(len(sold_items), len(all_items)),
             "live_value": _money(sum((_money_value(item.price) for item in live_items), Decimal("0"))),
             "sold_value": _money(
                 sum(
@@ -152,12 +140,6 @@ def _money(value: Decimal) -> str:
     if value == value.to_integral():
         return f"${value.quantize(Decimal('1'))}"
     return f"${value.quantize(Decimal('0.01'))}"
-
-
-def _percent(part: int, whole: int) -> str:
-    if whole <= 0:
-        return "0%"
-    return f"{round((part / whole) * 100)}%"
 
 
 def _age_label(started_at) -> str:
