@@ -113,3 +113,18 @@
 
 **Next up:**
 - Add UI controls or metadata import rules to mark an item as sold or auction-based without editing `data/catalog.json` manually.
+
+## 2026-06-23 (compact analytics panel)
+
+**What we did:**
+- Moved `Live value` and `Sold value` into the compact top-right analytics panel with the other dashboard counters.
+- Removed the global `Since listing` card because listing age only makes sense per item.
+- Kept item-level `Created`, `Time left`, and eBay auction time as the places where timing context appears.
+
+**Where we stopped:**
+- The repo is clean on branch `dev` after the analytics layout commit.
+- Fresh verification passed: `pytest -q` reported `19 passed`.
+- The live page responded with HTTP 200, showed `analytics-panel`, and no longer rendered global `Since listing`.
+
+**Next up:**
+- Add item-level controls for sold/auction metadata so those analytics can be edited from the UI.
