@@ -6,4 +6,5 @@ __pycache__/
 uploads/
 data/
 catalog_inbox/
+catalogue/
 instance/

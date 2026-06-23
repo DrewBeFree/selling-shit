@@ -14,7 +14,9 @@ Open `http://127.0.0.1:5001/`.
 
 ## Catalog Intake
 
-- Drop item folders into `catalog_inbox/`, then use **Scan catalogue**.
+- Drop item folders into `catalogue/inbox/`, then use **Scan catalogue**.
+- Scanned and uploaded items live in `catalogue/active/`.
+- Archived item folders move to `catalogue/archive/`.
 - Each folder can contain photos plus an optional `description.txt`.
 - Uploaded photos, scanned item media, and JSON catalog data stay local and are ignored by Git.
 

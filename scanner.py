@@ -14,11 +14,12 @@ IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".heic"}
 
 def scan_catalog_folder(
     inbox_dir: str | Path,
-    uploads_dir: str | Path,
+    active_dir: str | Path,
     store: CatalogStore,
 ) -> list[ListingItem]:
     inbox = Path(inbox_dir)
-    uploads = Path(uploads_dir)
+    active = Path(active_dir)
+    media_base = active.parent.parent
     if not inbox.exists():
         inbox.mkdir(parents=True, exist_ok=True)
         return []
@@ -41,17 +42,23 @@ def scan_catalog_folder(
             photo_paths=[],
             source_folder=source_key,
         )
-        item_upload_dir = uploads / item.id
-        item_upload_dir.mkdir(parents=True, exist_ok=True)
+        item_active_dir = active / item.id
+        item_active_dir.mkdir(parents=True, exist_ok=True)
 
         item.photo_paths = []
         for image in images:
             filename = secure_filename(image.name) or "photo"
-            destination = _unique_destination(item_upload_dir, filename)
+            destination = _unique_destination(item_active_dir, filename)
             shutil.copy2(image, destination)
-            item.photo_paths.append(str(destination.relative_to(uploads.parent)).replace("\\", "/"))
+            item.photo_paths.append(str(destination.relative_to(media_base)).replace("\\", "/"))
 
+        description_file = folder / "description.txt"
+        if description_file.exists():
+            shutil.copy2(description_file, item_active_dir / "description.txt")
+
+        item.source_folder = str(item_active_dir.resolve())
         store.upsert_item(item)
+        shutil.rmtree(folder)
         imported.append(item)
 
     return imported

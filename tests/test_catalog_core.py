@@ -103,6 +103,39 @@ def test_catalog_store_summary_tracks_live_sold_value_and_listing_age(tmp_path):
     assert summary["listing_age"].startswith("2d ")
 
 
+def test_catalog_store_summary_tracks_sold_totals_across_archived_items(tmp_path):
+    store = CatalogStore(tmp_path / "catalog.json")
+    store.upsert_item(
+        ListingItem(
+            id="active-sold",
+            title="Sold lamp",
+            description="",
+            price="40",
+            sold_price="35",
+            photo_paths=[],
+            status="sold",
+        )
+    )
+    store.upsert_item(
+        ListingItem(
+            id="archived-sold",
+            title="Archived sold chair",
+            description="",
+            price="25",
+            sold_price="20",
+            photo_paths=[],
+            status="archived",
+            previous_status="sold",
+        )
+    )
+
+    summary = store.summary()
+
+    assert summary["total"] == 1
+    assert summary["sold"] == 2
+    assert summary["sold_value"] == "$55"
+
+
 def test_catalog_store_archives_and_restores_items(tmp_path):
     store = CatalogStore(tmp_path / "catalog.json")
     item = store.add_item(

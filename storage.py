@@ -89,8 +89,9 @@ class CatalogStore:
 
     def summary(self) -> dict[str, int]:
         items = self.list_items()
+        all_items = self.list_all_items()
         live_items = [item for item in items if item.status != "sold"]
-        sold_items = [item for item in items if item.status == "sold"]
+        sold_items = [item for item in all_items if _is_sold(item)]
         oldest_live = min((item.created_at for item in live_items), default=None)
         return {
             "total": len(items),
@@ -154,3 +155,9 @@ def _age_label(started_at) -> str:
     if days:
         return f"{days}d {hours}h"
     return f"{hours}h"
+
+
+def _is_sold(item: ListingItem) -> bool:
+    return item.status == "sold" or (
+        item.status == "archived" and item.previous_status == "sold"
+    )
