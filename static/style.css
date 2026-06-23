@@ -495,8 +495,9 @@ dt {
   font-weight: 800;
   gap: 8px 14px;
   justify-content: space-between;
-  margin-top: 30px;
-  padding-top: 16px;
+  margin-top: 48px;
+  min-height: 88px;
+  padding: 24px 0 18px;
   text-transform: uppercase;
 }
 

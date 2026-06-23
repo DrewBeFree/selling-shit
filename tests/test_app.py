@@ -33,10 +33,10 @@ def test_pages_render_version_and_copyright_footer(tmp_path):
     home_response = client.get("/")
     archive_response = client.get("/archive")
 
-    assert b"v0.2.0" in home_response.data
-    assert b"&copy; 2026 DrewBeFree" in home_response.data
-    assert b"v0.2.0" in archive_response.data
-    assert b"&copy; 2026 DrewBeFree" in archive_response.data
+    assert b"v0.2.1" in home_response.data
+    assert b"&copy; 2026 Andrew Webb" in home_response.data
+    assert b"v0.2.1" in archive_response.data
+    assert b"&copy; 2026 Andrew Webb" in archive_response.data
 
 
 def test_listing_post_renders_draft_and_saves_upload(tmp_path):
