@@ -96,3 +96,20 @@
 
 **Next up:**
 - Continue feature work against root files such as `app.py`, `models.py`, `photos.py`, `templates/home.html`, and `static/style.css`.
+
+## 2026-06-23 (listing summary and marketplace badges)
+
+**What we did:**
+- Added listing value summary metrics for live value, sold value, and time since the oldest live listing.
+- Added item fields for sold price/date, listing type, and auction end time.
+- Added eBay auction time remaining to the eBay draft card when an item is marked as an auction.
+- Added marketplace icon badges for Nextdoor, eBay, and Facebook Marketplace draft cards.
+- Updated tests for the summary calculations, auction time labels, and dashboard rendering.
+
+**Where we stopped:**
+- The repo is clean on branch `dev` after the feature commit.
+- Fresh verification passed: `pytest -q` reported `19 passed`.
+- The live page responded with HTTP 200 and showed the listing value summary plus marketplace icon badges.
+
+**Next up:**
+- Add UI controls or metadata import rules to mark an item as sold or auction-based without editing `data/catalog.json` manually.
