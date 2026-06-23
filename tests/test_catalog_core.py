@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from drafts import generate_platform_drafts
 from models import ListingItem
@@ -70,6 +70,51 @@ def test_catalog_store_summary_counts_statuses(tmp_path):
     assert summary["drafting"] == 1
     assert summary["ready"] == 1
     assert summary["responses"] == 0
+
+
+def test_catalog_store_summary_tracks_live_sold_value_and_listing_age(tmp_path):
+    store = CatalogStore(tmp_path / "catalog.json")
+    live_item = ListingItem(
+        id="live-1",
+        title="Live controller",
+        description="",
+        price="125.50",
+        photo_paths=[],
+        status="ready",
+        created_at=datetime.now(timezone.utc) - timedelta(days=2, hours=3),
+    )
+    sold_item = ListingItem(
+        id="sold-1",
+        title="Sold lamp",
+        description="",
+        price="40",
+        sold_price="35",
+        photo_paths=[],
+        status="sold",
+        created_at=datetime.now(timezone.utc) - timedelta(days=1),
+    )
+    store.upsert_item(live_item)
+    store.upsert_item(sold_item)
+
+    summary = store.summary()
+
+    assert summary["live_value"] == "$125.50"
+    assert summary["sold_value"] == "$35"
+    assert summary["listing_age"] == "2d 3h"
+
+
+def test_listing_item_tracks_auction_time_remaining():
+    item = ListingItem(
+        id="auction-1",
+        title="Auction controller",
+        description="",
+        price="15",
+        photo_paths=[],
+        listing_type="auction",
+        auction_ends_at=datetime.now(timezone.utc) + timedelta(days=1, hours=2),
+    )
+
+    assert item.auction_time_left_label == "1d 2h"
 
 
 def test_catalog_store_reads_json_with_utf8_bom(tmp_path):

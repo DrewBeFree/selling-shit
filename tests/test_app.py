@@ -187,3 +187,67 @@ def test_dashboard_renders_featured_photo_carousel(tmp_path):
     assert response.data.count(b'aria-label="Show photo') == 4
     assert b'id="imagePreviewModal"' in response.data
     assert b'data-photo-src="/items/item-1/photos/' in response.data
+
+
+def test_dashboard_renders_listing_value_summary_and_marketplace_icons(tmp_path):
+    catalog_path = tmp_path / "catalog.json"
+    catalog_path.write_text(
+        """{
+  "items": [
+    {
+      "id": "auction-1",
+      "title": "Auction controller",
+      "description": "",
+      "price": "50",
+      "sold_price": "",
+      "photo_paths": [],
+      "created_at": "2026-06-21T15:34:29+00:00",
+      "deadline_at": null,
+      "auction_ends_at": "2026-06-24T15:34:29+00:00",
+      "sold_at": null,
+      "status": "ready",
+      "listing_type": "auction",
+      "watch_count": 0,
+      "response_count": 0,
+      "source_folder": null
+    },
+    {
+      "id": "sold-1",
+      "title": "Sold lamp",
+      "description": "",
+      "price": "20",
+      "sold_price": "18",
+      "photo_paths": [],
+      "created_at": "2026-06-22T15:34:29+00:00",
+      "deadline_at": null,
+      "auction_ends_at": null,
+      "sold_at": "2026-06-23T15:34:29+00:00",
+      "status": "sold",
+      "listing_type": "fixed_price",
+      "watch_count": 0,
+      "response_count": 0,
+      "source_folder": null
+    }
+  ]
+}""",
+        encoding="utf-8",
+    )
+    app.config.update(
+        TESTING=True,
+        UPLOAD_FOLDER=str(tmp_path / "uploads"),
+        CATALOG_PATH=str(catalog_path),
+        CATALOG_INBOX=str(tmp_path / "catalog_inbox"),
+    )
+
+    response = app.test_client().get("/")
+
+    assert response.status_code == 200
+    assert b"Live value" in response.data
+    assert b"Sold value" in response.data
+    assert b"Since listing" in response.data
+    assert b"$50" in response.data
+    assert b"$18" in response.data
+    assert b"Auction ends" in response.data
+    assert b"market-icon ebay" in response.data
+    assert b"market-icon nextdoor" in response.data
+    assert b"market-icon facebook" in response.data
