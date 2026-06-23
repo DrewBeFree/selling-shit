@@ -217,3 +217,18 @@
 
 **Next up:**
 - Do a visual click-through in the browser if further polish is needed on the preview modal size or backdrop feel.
+
+## 2026-06-23 (version footer)
+
+**What we did:**
+- Added app metadata constants for `APP_VERSION = "0.2.0"` and copyright year `2026`.
+- Added a shared footer to dashboard and archive pages showing `Selling Shit v0.2.0` and `© 2026 DrewBeFree`.
+- Styled the footer as a compact, muted utility row.
+- Added a regression test proving both pages render the version and copyright footer.
+
+**Where we stopped:**
+- The version footer is committed and pushed to both `dev` and `main` at `dad94c5`.
+- Atlas `selling-shit.service` was restarted after the push.
+
+**Next up:**
+- Bump `APP_VERSION` for future user-visible changes in the `0.2.x` series.
