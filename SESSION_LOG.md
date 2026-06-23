@@ -201,3 +201,19 @@
 
 **Next up:**
 - Decide whether to delete the old fallback local folders `G:\apps\data`, `G:\apps\uploads`, `G:\apps\catalog_inbox`, `G:\apps\selling-shit\uploads`, and `G:\apps\selling-shit\catalog_inbox` after a quick visual check.
+
+## 2026-06-23 (carousel preview interaction)
+
+**What we did:**
+- Changed carousel thumbnail hover/focus so it only updates the main image pane.
+- Changed the main image pane click so it opens the larger image preview modal.
+- Changed preview modal behavior so clicking outside the modal content closes it.
+- Added a stronger dimmed backdrop for the image preview modal.
+- Added a regression test covering the new preview hooks and removal of hover-to-modal behavior.
+
+**Where we stopped:**
+- The interaction fix is committed and pushed to both `dev` and `main` at `5c2edb8`.
+- Atlas `selling-shit.service` was restarted after the push.
+
+**Next up:**
+- Do a visual click-through in the browser if further polish is needed on the preview modal size or backdrop feel.
