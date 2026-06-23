@@ -262,3 +262,19 @@
 
 **Next up:**
 - Start the next session by reading `HANDOFF.md`, this `SESSION_LOG.md`, and `~/.Codex/projects/selling-shit/memory/session_log.md`.
+
+## 2026-06-23 (revert duplicate metrics dashboard)
+
+**What we did:**
+- Reverted the duplicate Grafana-style metrics dashboard and `v0.2.2` version bump.
+- Kept the fresh empty catalogue data state from the test cleanup.
+- Added Hermes kanban task `t_866ef6cf` on the `default` board in triage for a future, non-duplicative metrics pass.
+- Updated `HANDOFF.md` with the empty catalogue note and Hermes card reference.
+
+**Where we stopped:**
+- App code is back to `v0.2.1`; the duplicate `ops-dashboard` block is gone.
+- `pytest -q` passed with `27 passed`.
+- Local `http://127.0.0.1:5001/` returned HTTP 200, rendered `v0.2.1`, did not render `ops-dashboard`, and showed the empty catalogue state.
+
+**Next up:**
+- Push the revert/log commits through `main` and restart Atlas if not already done.

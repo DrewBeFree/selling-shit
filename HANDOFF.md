@@ -9,6 +9,7 @@
 - Local app: `http://127.0.0.1:5001/`
 - Current version: `v0.2.1`
 - Footer: `Selling Shit v0.2.1` and `© 2026 Andrew Webb`
+- Current local catalogue data is intentionally empty after test item cleanup.
 
 ## Run Commands
 
@@ -57,6 +58,7 @@ systemctl --user status selling-shit.service --no-pager
 - Added all-time sold count/value across active and archived sold listings.
 - Added `catalogue/inbox`, `catalogue/active`, and `catalogue/archive` folder lifecycle.
 - Added footer/versioning, currently `v0.2.1`.
+- Reverted the duplicate metrics dashboard idea and moved it to Hermes kanban task `t_866ef6cf`.
 
 ## Known Follow-Ups
 
@@ -69,6 +71,7 @@ systemctl --user status selling-shit.service --no-pager
 - Delete accidental Kybernet-zone DNS record `sell.drewbefree.com.kybernet.tech` if it still exists.
 - Decide whether `sell.drewbefree.com` should stay behind Drew-only Cloudflare Access or be public.
 - Add UI controls for sold state, sold price, auction metadata, deadlines, and listing notes.
+- Hermes kanban `default` board task `t_866ef6cf`: rethink useful listing metrics only if they add new value beyond the existing summary cards.
 - Replace local photo-quality heuristic and draft text generation with real AI/Atlas assistance.
 - Bump `APP_VERSION` within `0.2.x` for future small visible changes.
 
