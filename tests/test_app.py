@@ -10,16 +10,25 @@ def test_home_page_loads_listing_form():
 
     assert response.status_code == 200
     assert b"Selling Shit" in response.data
+    assert b"Drop photos here" in response.data
+    assert b"Scan catalogue" in response.data
+    assert b"Nextdoor" in response.data
+    assert b"Facebook Marketplace" in response.data
     assert b'name="title"' in response.data
     assert b'name="images"' in response.data
 
 
 def test_listing_post_renders_draft_and_saves_upload(tmp_path):
-    app.config.update(TESTING=True, UPLOAD_FOLDER=str(tmp_path))
+    app.config.update(
+        TESTING=True,
+        UPLOAD_FOLDER=str(tmp_path / "uploads"),
+        CATALOG_PATH=str(tmp_path / "catalog.json"),
+        CATALOG_INBOX=str(tmp_path / "catalog_inbox"),
+    )
     client = app.test_client()
 
     response = client.post(
-        "/",
+        "/items",
         data={
             "title": "Vintage desk",
             "description": "Solid wood, pickup only",
@@ -30,9 +39,38 @@ def test_listing_post_renders_draft_and_saves_upload(tmp_path):
     )
 
     assert response.status_code == 200
-    assert b"Draft received" in response.data
+    assert b"Vintage desk" in response.data
     assert b"Vintage desk" in response.data
     assert b"Solid wood, pickup only" in response.data
     assert b"$75" in response.data
+    assert b"Watchers" in response.data
+    assert b"Responses" in response.data
+    assert b"Time left" in response.data
+    assert b"eBay" in response.data
     assert b"desk_photo.jpg" in response.data
-    assert (tmp_path / "desk_photo.jpg").read_bytes() == b"fake image bytes"
+    saved_files = list((tmp_path / "uploads").glob("*/desk_photo.jpg"))
+    assert len(saved_files) == 1
+    assert saved_files[0].read_bytes() == b"fake image bytes"
+
+
+def test_scan_route_imports_catalog_folder(tmp_path):
+    inbox = tmp_path / "catalog_inbox"
+    item_folder = inbox / "bike-rack"
+    item_folder.mkdir(parents=True)
+    (item_folder / "description.txt").write_text(
+        "Bike rack\nHitch rack for two bikes.\n60\n",
+        encoding="utf-8",
+    )
+    (item_folder / "rack.jpg").write_bytes(b"photo")
+    app.config.update(
+        TESTING=True,
+        UPLOAD_FOLDER=str(tmp_path / "uploads"),
+        CATALOG_PATH=str(tmp_path / "catalog.json"),
+        CATALOG_INBOX=str(inbox),
+    )
+
+    response = app.test_client().post("/scan")
+
+    assert response.status_code == 200
+    assert b"Bike rack" in response.data
+    assert b"Hitch rack for two bikes." in response.data
