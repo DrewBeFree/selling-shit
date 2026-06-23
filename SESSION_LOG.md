@@ -145,3 +145,24 @@
 
 **Next up:**
 - Add item-level edit controls for sold state, auction metadata, and archived item notes.
+
+## 2026-06-23 (GitHub and Atlas publish)
+
+**What we did:**
+- Created the public GitHub repo `DrewBeFree/selling-shit`.
+- Pushed both `dev` and `main`, set `main` as the default branch, and set the repo homepage to `https://sell.drewbefree.com`.
+- Added Gunicorn plus `deploy/selling-shit.service` so the Flask app can run as a user-level Atlas service.
+- Installed requirements on Atlas, enabled `selling-shit.service`, and verified Gunicorn returns HTTP 200 on `127.0.0.1:5055`.
+- Added `sell.drewbefree.com` to the Atlas `cloudflared` ingress config and restarted the active tunnel service.
+- Added a README with local development, catalog intake, and Atlas deployment notes.
+
+**Where we stopped:**
+- The repo is clean on branch `dev`; `main`, `dev`, and both remotes point at `bba637a`.
+- Local verification passed: `pytest -q` reported `22 passed`.
+- Atlas verification passed: `selling-shit.service` and `cloudflared.service` are active, and `curl http://127.0.0.1:5055/` returns HTTP 200.
+- `sell.drewbefree.com` is still NXDOMAIN because the available `cloudflared` cert created the wrong Kybernet-zone record instead of a DrewBeFree-zone DNS record.
+
+**Next up:**
+- In Cloudflare DNS for `drewbefree.com`, create a proxied CNAME/Tunnel record: `sell` -> `188e5c59-c931-49a2-84c9-6646aadcd3c9.cfargotunnel.com`.
+- Add `sell.drewbefree.com` to the Drew-only Cloudflare Access app before use.
+- Delete the accidental Kybernet-zone DNS record `sell.drewbefree.com.kybernet.tech`.
