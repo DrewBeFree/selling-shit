@@ -252,3 +252,93 @@ def test_dashboard_renders_listing_value_summary_and_marketplace_icons(tmp_path)
     assert b"market-icon ebay" in response.data
     assert b"market-icon nextdoor" in response.data
     assert b"market-icon facebook" in response.data
+
+
+def test_archive_route_hides_item_from_dashboard_and_archive_page_shows_it(tmp_path):
+    catalog_path = tmp_path / "catalog.json"
+    catalog_path.write_text(
+        """{
+  "items": [
+    {
+      "id": "item-1",
+      "title": "Controller",
+      "description": "",
+      "price": "50",
+      "photo_paths": [],
+      "created_at": "2026-06-23T15:34:29+00:00",
+      "deadline_at": null,
+      "auction_ends_at": null,
+      "sold_at": null,
+      "archived_at": null,
+      "status": "ready",
+      "listing_type": "fixed_price",
+      "sold_price": "",
+      "watch_count": 0,
+      "response_count": 0,
+      "source_folder": null
+    }
+  ]
+}""",
+        encoding="utf-8",
+    )
+    app.config.update(
+        TESTING=True,
+        UPLOAD_FOLDER=str(tmp_path / "uploads"),
+        CATALOG_PATH=str(catalog_path),
+        CATALOG_INBOX=str(tmp_path / "catalog_inbox"),
+    )
+    client = app.test_client()
+
+    archive_response = client.post("/items/item-1/archive")
+    dashboard_response = client.get("/")
+    archive_page_response = client.get("/archive")
+
+    assert archive_response.status_code == 302
+    assert b"Controller" not in dashboard_response.data
+    assert archive_page_response.status_code == 200
+    assert b"Archive" in archive_page_response.data
+    assert b"Controller" in archive_page_response.data
+    assert b"Restore" in archive_page_response.data
+
+
+def test_restore_route_returns_item_to_dashboard(tmp_path):
+    catalog_path = tmp_path / "catalog.json"
+    catalog_path.write_text(
+        """{
+  "items": [
+    {
+      "id": "item-1",
+      "title": "Controller",
+      "description": "",
+      "price": "50",
+      "photo_paths": [],
+      "created_at": "2026-06-23T15:34:29+00:00",
+      "deadline_at": null,
+      "auction_ends_at": null,
+      "sold_at": null,
+      "archived_at": "2026-06-24T15:34:29+00:00",
+      "status": "archived",
+      "previous_status": "ready",
+      "listing_type": "fixed_price",
+      "sold_price": "",
+      "watch_count": 0,
+      "response_count": 0,
+      "source_folder": null
+    }
+  ]
+}""",
+        encoding="utf-8",
+    )
+    app.config.update(
+        TESTING=True,
+        UPLOAD_FOLDER=str(tmp_path / "uploads"),
+        CATALOG_PATH=str(catalog_path),
+        CATALOG_INBOX=str(tmp_path / "catalog_inbox"),
+    )
+    client = app.test_client()
+
+    restore_response = client.post("/items/item-1/restore")
+    dashboard_response = client.get("/")
+
+    assert restore_response.status_code == 302
+    assert b"Controller" in dashboard_response.data

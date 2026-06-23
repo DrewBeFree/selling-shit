@@ -103,6 +103,34 @@ def test_catalog_store_summary_tracks_live_sold_value_and_listing_age(tmp_path):
     assert summary["listing_age"].startswith("2d ")
 
 
+def test_catalog_store_archives_and_restores_items(tmp_path):
+    store = CatalogStore(tmp_path / "catalog.json")
+    item = store.add_item(
+        title="Controller",
+        description="",
+        price="50",
+        photo_paths=[],
+        status="ready",
+    )
+
+    archived = store.archive_item(item.id)
+
+    assert archived is not None
+    assert archived.status == "archived"
+    assert archived.archived_at is not None
+    assert store.list_items() == []
+    assert store.list_archived_items()[0].id == item.id
+    assert store.summary()["total"] == 0
+
+    restored = store.restore_item(item.id)
+
+    assert restored is not None
+    assert restored.status == "ready"
+    assert restored.archived_at is None
+    assert store.list_items()[0].id == item.id
+    assert store.list_archived_items() == []
+
+
 def test_listing_item_tracks_auction_time_remaining():
     item = ListingItem(
         id="auction-1",
