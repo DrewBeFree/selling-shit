@@ -64,3 +64,19 @@
 
 **Next up:**
 - Add real description/price extraction. The current folder did not include `description.txt`, so the app can only infer the title from the folder name until AI/photo analysis or richer folder metadata is added.
+
+## 2026-06-23 (featured photo carousel)
+
+**What we did:**
+- Added a local photo-quality selector that ranks item photos and chooses up to four featured images for display.
+- Added Pillow as a dependency for lightweight image inspection, using thumbnail-sized samples and an in-process cache so large originals do not have to be fully decoded on every request.
+- Replaced the single cropped item preview with an eBay-style carousel: vertical thumbnails, contained main image, and larger hover/click preview modal.
+- Updated tests for photo selection and dashboard carousel rendering.
+
+**Where we stopped:**
+- The repo is clean on branch `dev` after the feature commit.
+- Fresh verification passed: `pytest -q` reported `16 passed`.
+- The live page responded with HTTP 200 and included the carousel plus preview modal markup.
+
+**Next up:**
+- Replace the local image-quality heuristic with real vision-assisted selection when an AI provider/key is configured.
