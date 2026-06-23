@@ -262,21 +262,3 @@
 
 **Next up:**
 - Start the next session by reading `HANDOFF.md`, this `SESSION_LOG.md`, and `~/.Codex/projects/selling-shit/memory/session_log.md`.
-
-## 2026-06-23 (fresh catalogue and metrics dashboard)
-
-**What we did:**
-- Reset the local catalogue data by emptying `data/catalog.json`.
-- Cleared test item folders from `catalogue/inbox`, `catalogue/active`, and `catalogue/archive`.
-- Added a Grafana-style listing health dashboard with active, archived, needs photos, responses, average live ask, sell-through, live value, and sold value metrics.
-- Bumped the app version to `v0.2.2`.
-- Updated tests for the new operational metrics and dashboard rendering.
-
-**Where we stopped:**
-- Code changes are committed as `26f4a01` and pushed to both `dev` and `main`.
-- `pytest -q` passed with `28 passed`.
-- Local `http://127.0.0.1:5001/` and hosted `https://sell.drewbefree.com/` both return HTTP 200, render `v0.2.2`, show the metrics dashboard, and show the empty catalogue state.
-- Atlas `selling-shit.service` was restarted and is active.
-
-**Next up:**
-- Add UI controls for sold state, sold price, auction metadata, deadlines, and listing notes when ready.
