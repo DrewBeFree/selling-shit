@@ -64,6 +64,55 @@
       </div>
     </section>
 
+    <section class="ops-dashboard" aria-label="selling metrics">
+      <div class="ops-heading">
+        <span class="eyebrow">Metrics</span>
+        <h2>Listing health</h2>
+      </div>
+      <div class="ops-grid">
+        <article>
+          <span>Active</span>
+          <strong>{{ summary.total }}</strong>
+          <small>{{ summary.drafting }} drafting / {{ summary.ready }} ready</small>
+        </article>
+        <article>
+          <span>Archived</span>
+          <strong>{{ summary.archived }}</strong>
+          <small>{{ summary.all_items }} total records</small>
+        </article>
+        <article>
+          <span>Needs photos</span>
+          <strong>{{ summary.no_photo }}</strong>
+          <small>{{ summary.photo_count }} photos catalogued</small>
+        </article>
+        <article>
+          <span>Responses</span>
+          <strong>{{ summary.responses }}</strong>
+          <small>Inbound buyer signals</small>
+        </article>
+        <article>
+          <span>Avg live ask</span>
+          <strong>{{ summary.average_live_price }}</strong>
+          <small>Priced active listings</small>
+        </article>
+        <article>
+          <span>Sell-through</span>
+          <strong>{{ summary.sell_through }}</strong>
+          <small>{{ summary.sold }} sold all time</small>
+        </article>
+        <article>
+          <span>Live value</span>
+          <strong>{{ summary.live_value }}</strong>
+          <small>Unsold asking total</small>
+        </article>
+        <article>
+          <span>Sold value</span>
+          <strong>{{ summary.sold_value }}</strong>
+          <small>All-time completed sales</small>
+        </article>
+      </div>
+    </section>
+
     <section class="platform-strip" aria-label="draft platforms">
       {% for platform in platforms %}
         <span>{{ platform }}</span>
