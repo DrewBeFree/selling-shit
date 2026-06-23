@@ -48,3 +48,19 @@
 
 **Next up:**
 - Continue feature work from `G:\apps\selling-shit`; do not use the old nested path.
+
+## 2026-06-23 (scanned photo preview fix)
+
+**What we did:**
+- Investigated a broken preview after scanning `catalog_inbox\Nintendo Switch - Zelda Controller`.
+- Found two filename issues: scanned images kept special characters, and existing filenames included `#`, which browsers treat as a URL fragment.
+- Added an indexed photo route, switched item cards to `/items/<item-id>/photos/0`, sanitized filenames for future scans, normalized folder-derived titles, and made catalog JSON reads tolerate UTF-8 BOMs.
+- Updated the existing local catalog title to `Nintendo Switch Zelda Controller` without changing ignored local media into tracked files.
+
+**Where we stopped:**
+- The repo is clean on branch `dev`.
+- Fresh verification passed: `pytest -q` reported `13 passed`.
+- The current scanned item photo returns HTTP 200 as `image/jpeg`.
+
+**Next up:**
+- Add real description/price extraction. The current folder did not include `description.txt`, so the app can only infer the title from the folder name until AI/photo analysis or richer folder metadata is added.
