@@ -7,8 +7,8 @@
 - Branches: `dev` and `main` are synced.
 - Hosted app: `https://sell.drewbefree.com/`
 - Local app: `http://127.0.0.1:5001/`
-- Current version: `v0.2.1`
-- Footer: `Selling Shit v0.2.1` and `© 2026 Andrew Webb`
+- Current version: `v0.2.2`
+- Footer: `Selling Shit v0.2.2` and `&copy; 2026 Andrew Webb`
 
 ## Run Commands
 
@@ -56,7 +56,9 @@ systemctl --user status selling-shit.service --no-pager
 - Added archive/restore workflow and archive page.
 - Added all-time sold count/value across active and archived sold listings.
 - Added `catalogue/inbox`, `catalogue/active`, and `catalogue/archive` folder lifecycle.
-- Added footer/versioning, currently `v0.2.1`.
+- Added footer/versioning, currently `v0.2.2`.
+- Added a Grafana-style listing health dashboard with active, archived, needs photos, responses, average live ask, sell-through, live value, and sold value metrics.
+- Reset the local catalogue test data: `data/catalog.json` is empty and `catalogue/inbox`, `catalogue/active`, and `catalogue/archive` contain no item folders.
 
 ## Known Follow-Ups
 
@@ -74,7 +76,8 @@ systemctl --user status selling-shit.service --no-pager
 
 ## Verification At Last Handoff
 
-- `pytest -q` passed with `27 passed`.
-- `http://127.0.0.1:5001/` rendered `v0.2.1` and `Andrew Webb`.
-- `https://sell.drewbefree.com/` rendered `v0.2.1` and `Andrew Webb`.
+- `pytest -q` passed with `28 passed`.
+- `http://127.0.0.1:5001/` rendered `v0.2.2`, the metrics dashboard, and the empty catalogue state.
+- `https://sell.drewbefree.com/` rendered `v0.2.2`, the metrics dashboard, and the empty catalogue state.
 - Atlas `selling-shit.service` was active and returned HTTP 200 through Gunicorn.
+
