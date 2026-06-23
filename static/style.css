@@ -485,6 +485,21 @@ dt {
   margin: 8px 0;
 }
 
+.app-footer {
+  align-items: center;
+  border-top: 1px solid rgba(110, 105, 99, 0.38);
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 0.78rem;
+  font-weight: 800;
+  gap: 8px 14px;
+  justify-content: space-between;
+  margin-top: 30px;
+  padding-top: 16px;
+  text-transform: uppercase;
+}
+
 dialog {
   width: min(560px, calc(100% - 32px));
   border-color: var(--orange);

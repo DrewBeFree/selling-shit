@@ -18,6 +18,8 @@ DEFAULT_CATALOG_INBOX = DEFAULT_CATALOGUE_DIR / "inbox"
 DEFAULT_CATALOG_ACTIVE = DEFAULT_CATALOGUE_DIR / "active"
 DEFAULT_CATALOG_ARCHIVE = DEFAULT_CATALOGUE_DIR / "archive"
 DEFAULT_LEGACY_UPLOAD_DIR = BASE_DIR / "uploads"
+APP_VERSION = "0.2.0"
+COPYRIGHT_YEAR = 2026
 
 app = Flask(__name__)
 app.config.update(
@@ -27,6 +29,14 @@ app.config.update(
     CATALOG_ACTIVE=str(DEFAULT_CATALOG_ACTIVE),
     CATALOG_ARCHIVE=str(DEFAULT_CATALOG_ARCHIVE),
 )
+
+
+@app.context_processor
+def app_metadata():
+    return {
+        "app_version": APP_VERSION,
+        "copyright_year": COPYRIGHT_YEAR,
+    }
 
 
 @app.route("/", methods=["GET"])
