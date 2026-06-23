@@ -200,7 +200,7 @@ dt {
 
 .item-card {
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
+  grid-template-columns: 320px minmax(0, 1fr);
   gap: 0;
   background: var(--card);
   overflow: hidden;
@@ -212,15 +212,13 @@ dt {
 }
 
 .item-media {
-  min-height: 260px;
-  background: #9d9992;
+  min-height: 420px;
+  background: #aaa69f;
 }
 
-.item-media img,
 .photo-placeholder {
   width: 100%;
   height: 100%;
-  object-fit: cover;
 }
 
 .photo-placeholder {
@@ -228,6 +226,61 @@ dt {
   place-items: center;
   color: var(--white);
   font-weight: 900;
+}
+
+.photo-carousel {
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr);
+  gap: 10px;
+  height: 100%;
+  min-height: 420px;
+  padding: 10px;
+}
+
+.carousel-thumbs {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+
+.carousel-thumb,
+.carousel-main {
+  border: 1px solid transparent;
+  background: rgba(255, 250, 242, 0.68);
+  cursor: pointer;
+  padding: 0;
+}
+
+.carousel-thumb {
+  width: 78px;
+  height: 92px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.carousel-thumb.selected {
+  border: 3px solid var(--ink);
+}
+
+.carousel-thumb img,
+.carousel-main img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.carousel-main {
+  width: 100%;
+  min-height: 398px;
+  border-radius: 7px;
+  box-shadow: inset 0 0 0 1px rgba(23, 22, 20, 0.08);
+}
+
+.carousel-main:focus-visible,
+.carousel-thumb:focus-visible {
+  outline: 3px solid var(--orange);
+  outline-offset: 2px;
 }
 
 .item-body {
@@ -362,6 +415,33 @@ dialog::backdrop {
   background: var(--white);
 }
 
+.image-preview-modal {
+  width: min(1040px, calc(100% - 36px));
+  max-height: calc(100vh - 36px);
+  background: #151412;
+  box-shadow: 14px 14px 0 rgba(255, 122, 24, 0.26);
+  padding: 18px;
+}
+
+.image-preview-modal img {
+  display: block;
+  width: 100%;
+  max-height: calc(100vh - 110px);
+  object-fit: contain;
+}
+
+.preview-close {
+  display: block;
+  margin: 0 0 12px auto;
+  border: 1px solid var(--orange);
+  border-radius: 6px;
+  background: var(--orange);
+  color: #221207;
+  cursor: pointer;
+  font-weight: 900;
+  padding: 8px 12px;
+}
+
 @media (max-width: 980px) {
   .command-deck,
   .item-card,
@@ -371,6 +451,11 @@ dialog::backdrop {
 
   .signals {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .item-media,
+  .photo-carousel {
+    min-height: 360px;
   }
 }
 

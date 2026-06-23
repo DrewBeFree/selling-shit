@@ -7,6 +7,7 @@ from flask import Flask, abort, render_template, request, send_from_directory
 from werkzeug.utils import secure_filename
 
 from .drafts import generate_platform_drafts
+from .photos import select_featured_photo_indices
 from .scanner import scan_catalog_folder
 from .storage import CatalogStore
 
@@ -106,10 +107,15 @@ def _render_dashboard(active_item_id: str | None = None):
     store = _store()
     items = store.list_items()
     platform_drafts = {item.id: generate_platform_drafts(item) for item in items}
+    featured_photos = {
+        item.id: select_featured_photo_indices(item, _upload_dir().parent)
+        for item in items
+    }
     return render_template(
         "home.html",
         items=items,
         platform_drafts=platform_drafts,
+        featured_photos=featured_photos,
         summary=store.summary(),
         platforms=["Nextdoor", "eBay", "Facebook Marketplace"],
         catalog_inbox=_catalog_inbox(),

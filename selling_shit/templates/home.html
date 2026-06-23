@@ -62,8 +62,36 @@
         {% for item in items %}
           <article class="item-card{% if active_item_id == item.id %} active{% endif %}">
             <div class="item-media">
-              {% if item.photo_paths %}
-                <img src="{{ url_for('item_photo', item_id=item.id, photo_index=0) }}" alt="{{ item.title }}">
+              {% set photo_indices = featured_photos[item.id] %}
+              {% if photo_indices %}
+                <div class="photo-carousel" data-carousel>
+                  <div class="carousel-thumbs" aria-label="{{ item.title }} photos">
+                    {% for photo_index in photo_indices %}
+                      {% set photo_url = url_for('item_photo', item_id=item.id, photo_index=photo_index) %}
+                      <button
+                        class="carousel-thumb{% if loop.first %} selected{% endif %}"
+                        type="button"
+                        data-photo-src="{{ photo_url }}"
+                        data-photo-alt="{{ item.title }} photo {{ loop.index }}"
+                        aria-label="Show photo {{ loop.index }} for {{ item.title }}"
+                      >
+                        <img src="{{ photo_url }}" alt="">
+                      </button>
+                    {% endfor %}
+                  </div>
+
+                  {% set first_photo = photo_indices[0] %}
+                  <button
+                    class="carousel-main"
+                    type="button"
+                    data-preview-trigger
+                    data-photo-src="{{ url_for('item_photo', item_id=item.id, photo_index=first_photo) }}"
+                    data-photo-alt="{{ item.title }} selected photo"
+                    aria-label="Preview {{ item.title }} photo"
+                  >
+                    <img src="{{ url_for('item_photo', item_id=item.id, photo_index=first_photo) }}" alt="{{ item.title }}">
+                  </button>
+                </div>
               {% else %}
                 <div class="photo-placeholder">No photo</div>
               {% endif %}
@@ -153,6 +181,11 @@
     </form>
   </dialog>
 
+  <dialog id="imagePreviewModal" class="image-preview-modal">
+    <button id="closePreview" class="preview-close" type="button" aria-label="Close image preview">Close</button>
+    <img id="previewImage" src="" alt="">
+  </dialog>
+
   <script>
     const dropZone = document.querySelector(".drop-zone");
     const imageInput = document.querySelector("#imageInput");
@@ -160,6 +193,9 @@
     const detailsForm = document.querySelector("#detailsForm");
     const cancelModal = document.querySelector("#cancelModal");
     const intakeForm = document.querySelector("#intakeForm");
+    const imagePreviewModal = document.querySelector("#imagePreviewModal");
+    const previewImage = document.querySelector("#previewImage");
+    const closePreview = document.querySelector("#closePreview");
 
     function openDetailsModal() {
       if (detailsModal.showModal) {
@@ -191,6 +227,46 @@
       document.querySelector("#priceInput").value = document.querySelector("#modalPrice").value;
       intakeForm.submit();
     });
+
+    document.querySelectorAll("[data-carousel]").forEach((carousel) => {
+      const mainButton = carousel.querySelector(".carousel-main");
+      const mainImage = mainButton.querySelector("img");
+      const thumbs = carousel.querySelectorAll(".carousel-thumb");
+
+      thumbs.forEach((thumb) => {
+        thumb.addEventListener("click", () => {
+          thumbs.forEach((candidate) => candidate.classList.remove("selected"));
+          thumb.classList.add("selected");
+          mainImage.src = thumb.dataset.photoSrc;
+          mainImage.alt = thumb.dataset.photoAlt;
+          mainButton.dataset.photoSrc = thumb.dataset.photoSrc;
+          mainButton.dataset.photoAlt = thumb.dataset.photoAlt;
+        });
+      });
+    });
+
+    function showPreview(trigger) {
+      previewImage.src = trigger.dataset.photoSrc;
+      previewImage.alt = trigger.dataset.photoAlt;
+      if (imagePreviewModal.showModal && !imagePreviewModal.open) {
+        imagePreviewModal.showModal();
+      }
+    }
+
+    function hidePreview() {
+      if (imagePreviewModal.open) {
+        imagePreviewModal.close();
+      }
+    }
+
+    document.querySelectorAll("[data-preview-trigger]").forEach((trigger) => {
+      trigger.addEventListener("mouseenter", () => showPreview(trigger));
+      trigger.addEventListener("focus", () => showPreview(trigger));
+      trigger.addEventListener("click", () => showPreview(trigger));
+    });
+
+    imagePreviewModal.addEventListener("mouseleave", hidePreview);
+    closePreview.addEventListener("click", hidePreview);
   </script>
 </body>
 </html>

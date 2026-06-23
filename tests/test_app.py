@@ -184,6 +184,6 @@ def test_dashboard_renders_featured_photo_carousel(tmp_path):
 
     assert response.status_code == 200
     assert b'class="photo-carousel"' in response.data
-    assert response.data.count(b'class="carousel-thumb') == 4
+    assert response.data.count(b'aria-label="Show photo') == 4
     assert b'id="imagePreviewModal"' in response.data
     assert b'data-photo-src="/items/item-1/photos/' in response.data
