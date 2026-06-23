@@ -133,3 +133,57 @@ def test_item_photo_route_serves_filename_with_url_fragments(tmp_path):
 
     assert response.status_code == 200
     assert response.data == b"photo"
+
+
+def test_dashboard_renders_featured_photo_carousel(tmp_path):
+    from PIL import Image
+
+    upload_dir = tmp_path / "uploads"
+    item_dir = upload_dir / "item-1"
+    item_dir.mkdir(parents=True)
+    for index in range(5):
+        Image.new("RGB", (900 + index * 100, 1200), (220, 220, 220)).save(
+            item_dir / f"photo-{index}.jpg"
+        )
+
+    catalog_path = tmp_path / "catalog.json"
+    catalog_path.write_text(
+        """{
+  "items": [
+    {
+      "id": "item-1",
+      "title": "Controller",
+      "description": "",
+      "price": "",
+      "photo_paths": [
+        "uploads/item-1/photo-0.jpg",
+        "uploads/item-1/photo-1.jpg",
+        "uploads/item-1/photo-2.jpg",
+        "uploads/item-1/photo-3.jpg",
+        "uploads/item-1/photo-4.jpg"
+      ],
+      "created_at": "2026-06-23T15:34:29+00:00",
+      "deadline_at": null,
+      "status": "drafting",
+      "watch_count": 0,
+      "response_count": 0,
+      "source_folder": null
+    }
+  ]
+}""",
+        encoding="utf-8",
+    )
+    app.config.update(
+        TESTING=True,
+        UPLOAD_FOLDER=str(upload_dir),
+        CATALOG_PATH=str(catalog_path),
+        CATALOG_INBOX=str(tmp_path / "catalog_inbox"),
+    )
+
+    response = app.test_client().get("/")
+
+    assert response.status_code == 200
+    assert b'class="photo-carousel"' in response.data
+    assert response.data.count(b'class="carousel-thumb') == 4
+    assert b'id="imagePreviewModal"' in response.data
+    assert b'data-photo-src="/items/item-1/photos/' in response.data
