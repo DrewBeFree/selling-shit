@@ -59,7 +59,7 @@ class CatalogStore:
     def _read(self) -> dict[str, list[dict]]:
         if not self.path.exists():
             return {"items": []}
-        return json.loads(self.path.read_text(encoding="utf-8"))
+        return json.loads(self.path.read_text(encoding="utf-8-sig"))
 
     def _write(self, data: dict[str, list[dict]]) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)

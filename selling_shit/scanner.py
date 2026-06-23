@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import shutil
+import re
 from pathlib import Path
+
+from werkzeug.utils import secure_filename
 
 from .models import ListingItem
 from .storage import CatalogStore
@@ -32,7 +35,7 @@ def scan_catalog_folder(
 
         title, description, price = _read_description(folder)
         item = store.add_item(
-            title=title or folder.name.replace("-", " ").title(),
+            title=title or _title_from_folder(folder),
             description=description,
             price=price,
             photo_paths=[],
@@ -43,7 +46,8 @@ def scan_catalog_folder(
 
         item.photo_paths = []
         for image in images:
-            destination = item_upload_dir / image.name
+            filename = secure_filename(image.name) or "photo"
+            destination = _unique_destination(item_upload_dir, filename)
             shutil.copy2(image, destination)
             item.photo_paths.append(str(destination.relative_to(uploads.parent)).replace("\\", "/"))
 
@@ -63,3 +67,24 @@ def _read_description(folder: Path) -> tuple[str, str, str]:
     description = lines[1] if len(lines) >= 2 else ""
     price = lines[2] if len(lines) >= 3 else ""
     return title, description, price
+
+
+def _title_from_folder(folder: Path) -> str:
+    title = re.sub(r"[_-]+", " ", folder.name)
+    title = re.sub(r"\s+", " ", title).strip()
+    return title.title()
+
+
+def _unique_destination(folder: Path, filename: str) -> Path:
+    destination = folder / filename
+    if not destination.exists():
+        return destination
+
+    stem = destination.stem
+    suffix = destination.suffix
+    counter = 2
+    while True:
+        candidate = folder / f"{stem}-{counter}{suffix}"
+        if not candidate.exists():
+            return candidate
+        counter += 1

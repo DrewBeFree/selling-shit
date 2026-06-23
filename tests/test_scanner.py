@@ -37,3 +37,31 @@ def test_scan_catalog_folder_skips_already_imported_folder(tmp_path):
     assert len(first) == 1
     assert second == []
     assert len(store.list_items()) == 1
+
+
+def test_scan_catalog_folder_normalizes_folder_title(tmp_path):
+    inbox = tmp_path / "catalog_inbox"
+    item_folder = inbox / "Nintendo Switch - Zelda Controller"
+    item_folder.mkdir(parents=True)
+    (item_folder / "controller.jpg").write_bytes(b"photo")
+
+    store = CatalogStore(tmp_path / "catalog.json")
+    scan_catalog_folder(inbox, tmp_path / "uploads", store)
+
+    assert store.list_items()[0].title == "Nintendo Switch Zelda Controller"
+
+
+def test_scan_catalog_folder_sanitizes_copied_image_names(tmp_path):
+    inbox = tmp_path / "catalog_inbox"
+    item_folder = inbox / "controller"
+    item_folder.mkdir(parents=True)
+    (item_folder / "Nintendo Switch - {Date (YYYY)»}-10.JPG").write_bytes(b"photo")
+
+    store = CatalogStore(tmp_path / "catalog.json")
+    scan_catalog_folder(inbox, tmp_path / "uploads", store)
+
+    photo_path = store.list_items()[0].photo_paths[0]
+    assert photo_path.endswith("Nintendo_Switch_-_Date_YYYY-10.JPG")
+    assert "{" not in photo_path
+    assert "»" not in photo_path
+    assert (tmp_path / photo_path).read_bytes() == b"photo"

@@ -70,3 +70,12 @@ def test_catalog_store_summary_counts_statuses(tmp_path):
     assert summary["drafting"] == 1
     assert summary["ready"] == 1
     assert summary["responses"] == 0
+
+
+def test_catalog_store_reads_json_with_utf8_bom(tmp_path):
+    catalog_path = tmp_path / "catalog.json"
+    catalog_path.write_text('\ufeff{"items": []}', encoding="utf-8")
+
+    store = CatalogStore(catalog_path)
+
+    assert store.list_items() == []

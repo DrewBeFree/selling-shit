@@ -3,7 +3,7 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
-from flask import Flask, render_template, request, send_from_directory
+from flask import Flask, abort, render_template, request, send_from_directory
 from werkzeug.utils import secure_filename
 
 from .drafts import generate_platform_drafts
@@ -69,7 +69,21 @@ def scan_catalog():
 
 @app.route("/uploads/<item_id>/<filename>")
 def uploaded_file(item_id: str, filename: str):
-    return send_from_directory(_upload_dir() / secure_filename(item_id), secure_filename(filename))
+    return send_from_directory(_upload_dir() / secure_filename(item_id), filename)
+
+
+@app.route("/items/<item_id>/photos/<int:photo_index>")
+def item_photo(item_id: str, photo_index: int):
+    item = next((listing for listing in _store().list_items() if listing.id == item_id), None)
+    if item is None or photo_index < 0 or photo_index >= len(item.photo_paths):
+        abort(404)
+
+    upload_root = _upload_dir().resolve()
+    photo_path = (_upload_dir().parent / item.photo_paths[photo_index]).resolve()
+    if upload_root not in photo_path.parents:
+        abort(404)
+
+    return send_from_directory(photo_path.parent, photo_path.name)
 
 
 def _store() -> CatalogStore:

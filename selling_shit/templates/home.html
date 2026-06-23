@@ -63,7 +63,7 @@
           <article class="item-card{% if active_item_id == item.id %} active{% endif %}">
             <div class="item-media">
               {% if item.photo_paths %}
-                <img src="/{{ item.photo_paths[0] }}" alt="{{ item.title }}">
+                <img src="{{ url_for('item_photo', item_id=item.id, photo_index=0) }}" alt="{{ item.title }}">
               {% else %}
                 <div class="photo-placeholder">No photo</div>
               {% endif %}
