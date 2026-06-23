@@ -247,3 +247,18 @@
 
 **Next up:**
 - Continue bumping `APP_VERSION` within `0.2.x` for future small visible changes.
+
+## 2026-06-23 (handoff checkpoint)
+
+**What we did:**
+- Added `HANDOFF.md` with the current repo state, run commands, app layout, recent changes, verification status, and known follow-ups.
+- Confirmed `dev`, `main`, `origin/dev`, and `origin/main` were synced before the handoff update.
+
+**Where we stopped:**
+- Current app version is `v0.2.1`.
+- Local URL is `http://127.0.0.1:5001/`.
+- Hosted URL is `https://sell.drewbefree.com/`.
+- Atlas service is `selling-shit.service`.
+
+**Next up:**
+- Start the next session by reading `HANDOFF.md`, this `SESSION_LOG.md`, and `~/.Codex/projects/selling-shit/memory/session_log.md`.
