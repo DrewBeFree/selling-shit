@@ -302,6 +302,129 @@ def test_dashboard_renders_listing_value_summary_and_marketplace_icons(tmp_path)
     assert b"market-icon facebook" in response.data
 
 
+def test_dashboard_renders_listing_metadata_edit_controls(tmp_path):
+    catalog_path = tmp_path / "catalog.json"
+    catalog_path.write_text(
+        """{
+  "items": [
+    {
+      "id": "item-1",
+      "title": "Controller",
+      "description": "",
+      "price": "50",
+      "sold_price": "45",
+      "notes": "Buyer asked about pickup window.",
+      "photo_paths": [],
+      "created_at": "2026-06-23T15:34:29+00:00",
+      "deadline_at": "2026-06-30T20:15:00+00:00",
+      "auction_ends_at": "2026-07-01T21:30:00+00:00",
+      "sold_at": null,
+      "archived_at": null,
+      "status": "ready",
+      "listing_type": "auction",
+      "watch_count": 7,
+      "response_count": 3,
+      "source_folder": null
+    }
+  ]
+}""",
+        encoding="utf-8",
+    )
+    app.config.update(
+        TESTING=True,
+        UPLOAD_FOLDER=str(tmp_path / "catalogue" / "active"),
+        CATALOG_PATH=str(catalog_path),
+        CATALOG_INBOX=str(tmp_path / "catalogue" / "inbox"),
+        CATALOG_ACTIVE=str(tmp_path / "catalogue" / "active"),
+        CATALOG_ARCHIVE=str(tmp_path / "catalogue" / "archive"),
+    )
+
+    response = app.test_client().get("/")
+
+    assert response.status_code == 200
+    assert b'action="/items/item-1/metadata"' in response.data
+    assert b'name="status"' in response.data
+    assert b'value="ready" selected' in response.data
+    assert b'name="sold_price"' in response.data
+    assert b'value="45"' in response.data
+    assert b'name="notes"' in response.data
+    assert b"Buyer asked about pickup window." in response.data
+    assert b'name="watch_count"' in response.data
+    assert b'value="7"' in response.data
+    assert b'name="response_count"' in response.data
+    assert b'value="3"' in response.data
+    assert b'name="deadline_at"' in response.data
+    assert b'value="2026-06-30T20:15"' in response.data
+    assert b'name="listing_type"' in response.data
+    assert b'value="auction" selected' in response.data
+    assert b'name="auction_ends_at"' in response.data
+    assert b'value="2026-07-01T21:30"' in response.data
+
+
+def test_metadata_route_updates_listing_state_counts_notes_and_dates(tmp_path):
+    catalog_path = tmp_path / "catalog.json"
+    catalog_path.write_text(
+        """{
+  "items": [
+    {
+      "id": "item-1",
+      "title": "Controller",
+      "description": "",
+      "price": "50",
+      "photo_paths": [],
+      "created_at": "2026-06-23T15:34:29+00:00",
+      "deadline_at": null,
+      "auction_ends_at": null,
+      "sold_at": null,
+      "archived_at": null,
+      "status": "ready",
+      "listing_type": "fixed_price",
+      "sold_price": "",
+      "notes": "",
+      "watch_count": 0,
+      "response_count": 0,
+      "source_folder": null
+    }
+  ]
+}""",
+        encoding="utf-8",
+    )
+    app.config.update(
+        TESTING=True,
+        UPLOAD_FOLDER=str(tmp_path / "catalogue" / "active"),
+        CATALOG_PATH=str(catalog_path),
+        CATALOG_INBOX=str(tmp_path / "catalogue" / "inbox"),
+        CATALOG_ACTIVE=str(tmp_path / "catalogue" / "active"),
+        CATALOG_ARCHIVE=str(tmp_path / "catalogue" / "archive"),
+    )
+
+    response = app.test_client().post(
+        "/items/item-1/metadata",
+        data={
+            "status": "sold",
+            "sold_price": "45",
+            "notes": "Paid cash. Porch pickup.",
+            "watch_count": "7",
+            "response_count": "3",
+            "deadline_at": "2026-06-30T20:15",
+            "listing_type": "auction",
+            "auction_ends_at": "2026-07-01T21:30",
+        },
+    )
+
+    assert response.status_code == 302
+    saved = catalog_path.read_text(encoding="utf-8")
+    assert '"status": "sold"' in saved
+    assert '"sold_price": "45"' in saved
+    assert '"notes": "Paid cash. Porch pickup."' in saved
+    assert '"watch_count": 7' in saved
+    assert '"response_count": 3' in saved
+    assert '"deadline_at": "2026-06-30T20:15:00+00:00"' in saved
+    assert '"listing_type": "auction"' in saved
+    assert '"auction_ends_at": "2026-07-01T21:30:00+00:00"' in saved
+    assert '"sold_at": null' not in saved
+
+
 def test_archive_route_hides_item_from_dashboard_and_archive_page_shows_it(tmp_path):
     catalog_path = tmp_path / "catalog.json"
     catalog_path.write_text(

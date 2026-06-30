@@ -280,3 +280,45 @@
 
 **Next up:**
 - Add UI controls for sold state, sold price, auction metadata, deadlines, and listing notes when ready.
+
+## 2026-06-30 (listing metadata controls)
+
+**What we did:**
+- Started from branch `dev` at `c95dbef` with pre-existing modified files in the worktree.
+- Ran the requested baseline verification from `/home/drew/GitHub/apps/selling-shit`: `git status --short`, activated `.venv`, and `python -m pytest -q`.
+- Added item-level dashboard controls for status, sold price, notes, watch count, response count, deadline, listing type, and auction end time.
+- Added `POST /items/<item_id>/metadata` to persist metadata changes into the JSON catalog.
+- Added model helpers for `datetime-local` form values and persisted listing notes.
+- Added regression tests for rendering the metadata controls and saving metadata through the route.
+- Started a Flask debug server on Atlas bound to Tailscale at `http://100.71.165.80:5001/` for Drew to test remotely over SSH/Tailscale.
+
+**Commands run:**
+
+```bash
+cd /home/drew/GitHub/apps/selling-shit
+git status --short
+. .venv/bin/activate
+python -m pytest -q
+python -m pytest tests/test_app.py::test_dashboard_renders_listing_metadata_edit_controls tests/test_app.py::test_metadata_route_updates_listing_state_counts_notes_and_dates -q
+python -m flask --app app:app --debug run --host=100.71.165.80 --port=5001
+curl -sS -o /tmp/selling-shit-home.html -w '%{http_code} %{url_effective}\\n' http://100.71.165.80:5001/
+```
+
+**Observed result:**
+
+```text
+Baseline: 27 passed in 0.62s
+Targeted metadata tests: 2 passed
+Final suite: 29 passed in 0.84s
+Tailscale dev URL: 200 http://100.71.165.80:5001/
+Drew confirmed the UI works remotely.
+```
+
+**Where we stopped:**
+- Metadata controls are working in the Atlas-bound Flask debug server at `http://100.71.165.80:5001/` while process `proc_d4768a73d7d4` is running.
+- The production Gunicorn service on `127.0.0.1:5055` was not reloaded in this step, so `https://sell.drewbefree.com/` may not include the metadata-control changes until the service is updated/restarted from this worktree.
+- The metadata-control feature and docs were committed on `dev` as `feat: add listing metadata controls`.
+- The worktree still has pre-existing modified files outside this feature commit.
+
+**Next up:**
+- Review the broader dirty worktree, then push/restart the production `selling-shit.service` when ready.

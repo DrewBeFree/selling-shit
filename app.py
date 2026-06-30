@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import shutil
+from datetime import datetime, timezone
 from pathlib import Path
 
 from flask import Flask, abort, redirect, render_template, request, send_from_directory, url_for
 from werkzeug.utils import secure_filename
 
 from drafts import generate_platform_drafts
+from models import utc_now
 from photos import select_featured_photo_indices
 from scanner import scan_catalog_folder
 from storage import CatalogStore
@@ -99,6 +101,42 @@ def scan_catalog():
     return _render_dashboard()
 
 
+@app.route("/items/<item_id>/metadata", methods=["POST"])
+def update_item_metadata(item_id: str):
+    store = _store()
+    item = store.get_item(item_id)
+    if item is None:
+        abort(404)
+
+    next_status = _clean_choice(
+        request.form.get("status"),
+        allowed={"drafting", "ready", "listed", "sold"},
+        default=item.status,
+    )
+    was_sold = item.status == "sold"
+    is_sold = next_status == "sold"
+
+    item.status = next_status
+    item.sold_price = request.form.get("sold_price", "").strip()
+    item.notes = request.form.get("notes", "").strip()
+    item.watch_count = _parse_non_negative_int(request.form.get("watch_count"))
+    item.response_count = _parse_non_negative_int(request.form.get("response_count"))
+    item.deadline_at = _parse_datetime_local(request.form.get("deadline_at"))
+    item.listing_type = _clean_choice(
+        request.form.get("listing_type"),
+        allowed={"fixed_price", "auction"},
+        default=item.listing_type,
+    )
+    item.auction_ends_at = _parse_datetime_local(request.form.get("auction_ends_at"))
+    if is_sold and not was_sold and item.sold_at is None:
+        item.sold_at = utc_now()
+    elif not is_sold:
+        item.sold_at = None
+
+    store.upsert_item(item)
+    return redirect(url_for("home"))
+
+
 @app.route("/items/<item_id>/archive", methods=["POST"])
 def archive_item(item_id: str):
     store = _store()
@@ -147,6 +185,29 @@ def item_photo(item_id: str, photo_index: int):
         abort(404)
 
     return send_from_directory(photo_path.parent, photo_path.name)
+
+
+def _clean_choice(value: str | None, *, allowed: set[str], default: str) -> str:
+    candidate = (value or "").strip()
+    if candidate in allowed:
+        return candidate
+    return default if default in allowed else sorted(allowed)[0]
+
+
+def _parse_non_negative_int(value: str | None) -> int:
+    try:
+        return max(0, int(value or 0))
+    except ValueError:
+        return 0
+
+
+def _parse_datetime_local(value: str | None) -> datetime | None:
+    if not value:
+        return None
+    parsed = datetime.fromisoformat(value)
+    if parsed.tzinfo is None:
+        return parsed.replace(tzinfo=timezone.utc)
+    return parsed
 
 
 def _store() -> CatalogStore:

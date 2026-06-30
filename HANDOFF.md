@@ -7,6 +7,7 @@
 - Branches: `dev` and `main` are synced.
 - Hosted app: `https://sell.drewbefree.com/`
 - Local app: `http://127.0.0.1:5001/`
+- Tailscale dev test URL: `http://100.71.165.80:5001/` when Flask is bound to Atlas Tailscale
 - Current version: `v0.2.1`
 - Footer: `Selling Shit v0.2.1` and `© 2026 Andrew Webb`
 - Current local catalogue data is intentionally empty after test item cleanup.
@@ -59,6 +60,7 @@ systemctl --user status selling-shit.service --no-pager
 - Added `catalogue/inbox`, `catalogue/active`, and `catalogue/archive` folder lifecycle.
 - Added footer/versioning, currently `v0.2.1`.
 - Reverted the duplicate metrics dashboard idea and moved it to Hermes kanban task `t_866ef6cf`.
+- Added dashboard metadata controls and `POST /items/<item_id>/metadata` for status, sold state/price, notes, watch/response counts, deadline, listing type, and auction end metadata.
 
 ## Known Follow-Ups
 
@@ -70,14 +72,14 @@ systemctl --user status selling-shit.service --no-pager
   - `G:\apps\selling-shit\catalog_inbox`
 - Delete accidental Kybernet-zone DNS record `sell.drewbefree.com.kybernet.tech` if it still exists.
 - Decide whether `sell.drewbefree.com` should stay behind Drew-only Cloudflare Access or be public.
-- Add UI controls for sold state, sold price, auction metadata, deadlines, and listing notes.
 - Hermes kanban `default` board task `t_866ef6cf`: rethink useful listing metrics only if they add new value beyond the existing summary cards.
 - Replace local photo-quality heuristic and draft text generation with real AI/Atlas assistance.
 - Bump `APP_VERSION` within `0.2.x` for future small visible changes.
 
 ## Verification At Last Handoff
 
-- `pytest -q` passed with `27 passed`.
+- `pytest -q` passed with `29 passed`.
 - `http://127.0.0.1:5001/` rendered `v0.2.1` and `Andrew Webb`.
+- `http://100.71.165.80:5001/` rendered the dashboard over Tailscale from the Atlas-bound Flask debug server.
 - `https://sell.drewbefree.com/` rendered `v0.2.1` and `Andrew Webb`.
 - Atlas `selling-shit.service` was active and returned HTTP 200 through Gunicorn.

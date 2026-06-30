@@ -145,6 +145,50 @@
                 </div>
               </dl>
 
+              <form class="metadata-form" method="post" action="{{ url_for('update_item_metadata', item_id=item.id) }}">
+                <label>
+                  Status
+                  <select name="status">
+                    <option value="drafting"{% if item.status == "drafting" %} selected{% endif %}>Drafting</option>
+                    <option value="ready"{% if item.status == "ready" %} selected{% endif %}>Ready</option>
+                    <option value="listed"{% if item.status == "listed" %} selected{% endif %}>Listed</option>
+                    <option value="sold"{% if item.status == "sold" %} selected{% endif %}>Sold</option>
+                  </select>
+                </label>
+                <label>
+                  Sold price
+                  <input name="sold_price" type="number" min="0" step="0.01" value="{{ item.sold_price }}" placeholder="45">
+                </label>
+                <label>
+                  Watch count
+                  <input name="watch_count" type="number" min="0" step="1" value="{{ item.watch_count }}">
+                </label>
+                <label>
+                  Response count
+                  <input name="response_count" type="number" min="0" step="1" value="{{ item.response_count }}">
+                </label>
+                <label>
+                  Deadline
+                  <input name="deadline_at" type="datetime-local" value="{{ item.deadline_form_value }}">
+                </label>
+                <label>
+                  Listing type
+                  <select name="listing_type">
+                    <option value="fixed_price"{% if item.listing_type == "fixed_price" %} selected{% endif %}>Fixed price</option>
+                    <option value="auction"{% if item.listing_type == "auction" %} selected{% endif %}>Auction</option>
+                  </select>
+                </label>
+                <label>
+                  Auction ends
+                  <input name="auction_ends_at" type="datetime-local" value="{{ item.auction_ends_form_value }}">
+                </label>
+                <label class="metadata-notes">
+                  Notes
+                  <textarea name="notes" rows="3" placeholder="Buyer, pickup, offer, platform notes">{{ item.notes }}</textarea>
+                </label>
+                <button class="text-action metadata-save" type="submit">Save metadata</button>
+              </form>
+
               <div class="draft-grid">
                 {% for draft in platform_drafts[item.id] %}
                   <section class="draft-panel">

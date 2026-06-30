@@ -12,6 +12,29 @@ python -m venv .venv
 
 Open `http://127.0.0.1:5001/`.
 
+If you are SSH'd into Atlas and need a browser-reachable dev URL over Tailscale:
+
+```bash
+python -m flask --app app:app --debug run --host=100.71.165.80 --port=5001
+```
+
+Open `http://100.71.165.80:5001/` from a device connected to the same Tailscale network.
+
+## Listing Metadata Controls
+
+Each dashboard item card has an editable metadata form for:
+
+- Status: drafting, ready, listed, sold
+- Sold price
+- Notes
+- Watch count
+- Response count
+- Deadline
+- Listing type: fixed price or auction
+- Auction end date/time
+
+Click **Save metadata** on the item card to persist the values to the local JSON catalog.
+
 ## Catalog Intake
 
 - Drop item folders into `catalogue/inbox/`, then use **Scan catalogue**.

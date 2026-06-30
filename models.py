@@ -44,6 +44,7 @@ class ListingItem:
     previous_status: str = ""
     listing_type: str = "fixed_price"
     sold_price: str = ""
+    notes: str = ""
     watch_count: int = 0
     response_count: int = 0
     source_folder: str | None = None
@@ -69,6 +70,14 @@ class ListingItem:
 
         return format_time_delta(self.auction_ends_at, expired_label="Ended")
 
+    @property
+    def deadline_form_value(self) -> str:
+        return datetime_local_value(self.deadline_at)
+
+    @property
+    def auction_ends_form_value(self) -> str:
+        return datetime_local_value(self.auction_ends_at)
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "id": self.id,
@@ -85,6 +94,7 @@ class ListingItem:
             "previous_status": self.previous_status,
             "listing_type": self.listing_type,
             "sold_price": self.sold_price,
+            "notes": self.notes,
             "watch_count": self.watch_count,
             "response_count": self.response_count,
             "source_folder": self.source_folder,
@@ -107,10 +117,17 @@ class ListingItem:
             previous_status=data.get("previous_status", ""),
             listing_type=data.get("listing_type", "fixed_price"),
             sold_price=data.get("sold_price", ""),
+            notes=data.get("notes", ""),
             watch_count=int(data.get("watch_count", 0)),
             response_count=int(data.get("response_count", 0)),
             source_folder=data.get("source_folder"),
         )
+
+
+def datetime_local_value(value: datetime | None) -> str:
+    if value is None:
+        return ""
+    return value.strftime("%Y-%m-%dT%H:%M")
 
 
 def format_time_delta(target: datetime, expired_label: str) -> str:
