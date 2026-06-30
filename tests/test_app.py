@@ -302,7 +302,7 @@ def test_dashboard_renders_listing_value_summary_and_marketplace_icons(tmp_path)
     assert b"market-icon facebook" in response.data
 
 
-def test_dashboard_renders_listing_metadata_edit_controls(tmp_path):
+def test_dashboard_keeps_notes_visible_and_hides_advanced_metadata_controls(tmp_path):
     catalog_path = tmp_path / "catalog.json"
     catalog_path.write_text(
         """{
@@ -343,22 +343,30 @@ def test_dashboard_renders_listing_metadata_edit_controls(tmp_path):
 
     assert response.status_code == 200
     assert b'action="/items/item-1/metadata"' in response.data
-    assert b'name="status"' in response.data
-    assert b'value="ready" selected' in response.data
-    assert b'name="sold_price"' in response.data
-    assert b'value="45"' in response.data
     assert b'name="notes"' in response.data
     assert b"Buyer asked about pickup window." in response.data
-    assert b'name="watch_count"' in response.data
-    assert b'value="7"' in response.data
-    assert b'name="response_count"' in response.data
-    assert b'value="3"' in response.data
-    assert b'name="deadline_at"' in response.data
-    assert b'value="2026-06-30T20:15"' in response.data
-    assert b'name="listing_type"' in response.data
-    assert b'value="auction" selected' in response.data
-    assert b'name="auction_ends_at"' in response.data
-    assert b'value="2026-07-01T21:30"' in response.data
+    assert b'class="metadata-advanced"' in response.data
+    assert b"Advanced listing controls" in response.data
+
+    notes_index = response.data.index(b'name="notes"')
+    advanced_index = response.data.index(b'class="metadata-advanced"')
+    assert notes_index < advanced_index
+
+    advanced_markup = response.data[advanced_index:]
+    assert b'name="status"' in advanced_markup
+    assert b'value="ready" selected' in advanced_markup
+    assert b'name="sold_price"' in advanced_markup
+    assert b'value="45"' in advanced_markup
+    assert b'name="watch_count"' in advanced_markup
+    assert b'value="7"' in advanced_markup
+    assert b'name="response_count"' in advanced_markup
+    assert b'value="3"' in advanced_markup
+    assert b'name="deadline_at"' in advanced_markup
+    assert b'value="2026-06-30T20:15"' in advanced_markup
+    assert b'name="listing_type"' in advanced_markup
+    assert b'value="auction" selected' in advanced_markup
+    assert b'name="auction_ends_at"' in advanced_markup
+    assert b'value="2026-07-01T21:30"' in advanced_markup
 
 
 def test_metadata_route_updates_listing_state_counts_notes_and_dates(tmp_path):

@@ -375,7 +375,7 @@ dt {
 
 .metadata-form {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 10px;
   margin: 18px 0 22px;
   padding: 14px;
@@ -384,7 +384,8 @@ dt {
   background: rgba(255, 250, 242, 0.48);
 }
 
-.metadata-form label {
+.metadata-form label,
+.metadata-advanced summary {
   display: grid;
   gap: 6px;
   color: var(--muted);
@@ -393,8 +394,22 @@ dt {
   text-transform: uppercase;
 }
 
-.metadata-form .metadata-notes {
-  grid-column: span 3;
+.metadata-form .metadata-notes,
+.metadata-advanced {
+  grid-column: 1 / -1;
+}
+
+.metadata-advanced summary {
+  cursor: pointer;
+  display: list-item;
+  margin: 4px 0;
+}
+
+.metadata-advanced-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .metadata-save {
@@ -618,12 +633,17 @@ dialog::backdrop {
   }
 
   .signals,
-  .metadata-form {
+  .metadata-advanced-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .metadata-form .metadata-notes {
-    grid-column: span 2;
+  .metadata-form {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .metadata-form .metadata-notes,
+  .metadata-advanced {
+    grid-column: 1 / -1;
   }
 
   .item-media,
@@ -640,11 +660,13 @@ dialog::backdrop {
 
   .stats-grid,
   .signals,
-  .metadata-form {
+  .metadata-form,
+  .metadata-advanced-grid {
     grid-template-columns: 1fr;
   }
 
-  .metadata-form .metadata-notes {
-    grid-column: span 1;
+  .metadata-form .metadata-notes,
+  .metadata-advanced {
+    grid-column: 1 / -1;
   }
 }
