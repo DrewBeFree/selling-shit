@@ -8,3 +8,4 @@ data/
 catalog_inbox/
 catalogue/
 instance/
+.worktrees/

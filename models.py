@@ -23,6 +23,7 @@ class PlatformDraft:
     fields: dict[str, str]
     icon_label: str
     icon_class: str
+    post_url: str
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

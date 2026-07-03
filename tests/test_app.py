@@ -33,9 +33,9 @@ def test_pages_render_version_and_copyright_footer(tmp_path):
     home_response = client.get("/")
     archive_response = client.get("/archive")
 
-    assert b"v0.2.1" in home_response.data
+    assert b"v0.2.2" in home_response.data
     assert b"&copy; 2026 Andrew Webb" in home_response.data
-    assert b"v0.2.1" in archive_response.data
+    assert b"v0.2.2" in archive_response.data
     assert b"&copy; 2026 Andrew Webb" in archive_response.data
 
 
@@ -70,6 +70,14 @@ def test_listing_post_renders_draft_and_saves_upload(tmp_path):
     assert b"Responses" in response.data
     assert b"Time left" in response.data
     assert b"eBay" in response.data
+    assert response.data.count(b'class="post-button"') == 3
+    assert b"Copy + open post" in response.data
+    assert b"https://www.facebook.com/marketplace/create/item" in response.data
+    assert b"https://www.ebay.com/sl/sell" in response.data
+    assert b"https://nextdoor.com/for_sale_and_free/" in response.data
+    assert b"draft-post-payload" in response.data
+    assert b"navigator.clipboard.writeText" in response.data
+    assert b"window.open(button.dataset.postUrl" in response.data
     assert b"/photos/0" in response.data
     saved_files = list((tmp_path / "catalogue" / "active").glob("*/desk_photo.jpg"))
     assert len(saved_files) == 1

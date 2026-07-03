@@ -8,8 +8,8 @@
 - Hosted app: `https://sell.drewbefree.com/`
 - Local app: `http://127.0.0.1:5001/`
 - Tailscale dev test URL: `http://100.71.165.80:5001/` when Flask is bound to Atlas Tailscale
-- Current version: `v0.2.1`
-- Footer: `Selling Shit v0.2.1` and `© 2026 Andrew Webb`
+- Current version: `v0.2.2`
+- Footer: `Selling Shit v0.2.2` and `© 2026 Andrew Webb`
 - Current local catalogue data is intentionally empty after test item cleanup.
 
 ## Run Commands
@@ -58,9 +58,10 @@ systemctl --user status selling-shit.service --no-pager
 - Added archive/restore workflow and archive page.
 - Added all-time sold count/value across active and archived sold listings.
 - Added `catalogue/inbox`, `catalogue/active`, and `catalogue/archive` folder lifecycle.
-- Added footer/versioning, currently `v0.2.1`.
+- Added footer/versioning, currently `v0.2.2`.
 - Reverted the duplicate metrics dashboard idea and moved it to Hermes kanban task `t_866ef6cf`.
 - Added dashboard metadata controls and `POST /items/<item_id>/metadata` for status, sold state/price, notes, watch/response counts, deadline, listing type, and auction end metadata.
+- Added **Copy + open post** buttons to each generated marketplace draft. The buttons copy the formatted draft text and open Nextdoor, eBay, or Facebook Marketplace's posting page.
 
 ## Known Follow-Ups
 
@@ -79,7 +80,6 @@ systemctl --user status selling-shit.service --no-pager
 ## Verification At Last Handoff
 
 - `pytest -q` passed with `29 passed`.
-- `http://127.0.0.1:5001/` rendered `v0.2.1` and `Andrew Webb`.
-- `http://100.71.165.80:5001/` rendered the dashboard over Tailscale from the Atlas-bound Flask debug server.
-- `https://sell.drewbefree.com/` rendered `v0.2.1` and `Andrew Webb`.
-- Atlas `selling-shit.service` was active and returned HTTP 200 through Gunicorn.
+- `http://127.0.0.1:5055/` returned HTTP 200 and rendered the Copy + open post controls.
+- `https://sell.drewbefree.com/` returned HTTP 200 and rendered the Copy + open post controls.
+- Atlas `selling-shit.service` was restarted and active through Gunicorn.

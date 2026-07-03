@@ -215,6 +215,8 @@
                         <li><strong>{{ label|replace("_", " ")|title }}:</strong> {{ value }}</li>
                       {% endfor %}
                     </ul>
+                    <script type="application/json" class="draft-post-payload">{{ dict(title=draft.title, body=draft.body, fields=draft.fields)|tojson }}</script>
+                    <button class="post-button" type="button" data-post-url="{{ draft.post_url }}">Copy + open post</button>
                   </section>
                 {% endfor %}
               </div>
@@ -305,6 +307,47 @@
       document.querySelector("#descriptionInput").value = document.querySelector("#modalDescription").value;
       document.querySelector("#priceInput").value = document.querySelector("#modalPrice").value;
       intakeForm.submit();
+    });
+
+    function buildPostText(payload) {
+      const fieldLines = Object.entries(payload.fields || {}).map(
+        ([label, value]) => `${label.replaceAll("_", " ")}: ${value}`,
+      );
+      return [payload.title, "", payload.body, "", ...fieldLines].filter(Boolean).join("\n");
+    }
+
+    async function copyPostText(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      textarea.remove();
+    }
+
+    document.querySelectorAll(".post-button").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const panel = button.closest(".draft-panel");
+        const payload = JSON.parse(panel.querySelector(".draft-post-payload").textContent);
+        try {
+          await copyPostText(buildPostText(payload));
+          button.textContent = "Copied — opening...";
+        } catch (error) {
+          console.warn("Could not copy post text", error);
+          button.textContent = "Opening — copy failed";
+        }
+        setTimeout(() => {
+          button.textContent = "Copy + open post";
+        }, 1600);
+        window.open(button.dataset.postUrl, "_blank", "noopener,noreferrer");
+      });
     });
 
     document.querySelectorAll("[data-carousel]").forEach((carousel) => {

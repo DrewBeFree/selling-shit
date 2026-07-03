@@ -322,3 +322,45 @@ Drew confirmed the UI works remotely.
 
 **Next up:**
 - Review the broader dirty worktree, then push/restart the production `selling-shit.service` when ready.
+
+## 2026-07-03 (one-touch post launchers)
+
+**What we did:**
+- Corrected course after an initial false start in the Command Center repo; those changes were reverted and no separate worktree remains there.
+- Added a per-draft **Copy + open post** button to the real `selling-shit` app at `https://sell.drewbefree.com/`.
+- Extended `PlatformDraft` with `post_url` values for Nextdoor, eBay, and Facebook Marketplace.
+- Added browser-side copy/open behavior: copy the formatted draft text, then open the marketplace posting URL in a new tab. If clipboard access fails, the button still opens the posting page.
+- Bumped app version to `v0.2.2` for the visible UI change.
+- Updated README and HANDOFF notes for the one-touch launcher behavior.
+
+**Commands run:**
+
+```bash
+cd /home/drew/GitHub/apps/selling-shit
+git worktree list
+git status --short --branch
+. .venv/bin/activate && python -m pytest -q
+python -m flask --app app:app --debug run --host=127.0.0.1 --port=5001
+systemctl --user restart selling-shit.service
+curl -sS -o /tmp/selling-shit-live.html -w 'local %{http_code}\n' http://127.0.0.1:5055/
+curl -sS -o /tmp/selling-shit-public-live.html -w 'public %{http_code}\n' https://sell.drewbefree.com/
+```
+
+**Observed result:**
+
+```text
+Worktree list: /home/drew/GitHub/apps/selling-shit only, on dev.
+Tests: 29 passed.
+Local production endpoint: HTTP 200 and rendered Copy + open post controls.
+Public endpoint: HTTP 200 and rendered Copy + open post controls.
+Atlas selling-shit.service restarted successfully.
+Temporary Flask debug server was stopped after browser verification.
+```
+
+**Where we stopped:**
+- The one-touch launcher feature is ready to commit on `dev`.
+- `Live value` / `Sold value` cards remain the existing analytics cards; no separate pending-value worktree exists.
+- `.gitignore` also has a local `.worktrees/` ignore addition that should be committed with this cleanup.
+
+**Next up:**
+- Commit on `dev`, merge to `main`, push both branches, then verify `https://sell.drewbefree.com/` after the final restart.

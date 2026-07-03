@@ -335,7 +335,8 @@ dt {
   justify-items: end;
 }
 
-.text-action {
+.text-action,
+.post-button {
   border: 1px solid var(--orange);
   border-radius: 999px;
   background: var(--white);
@@ -345,6 +346,14 @@ dt {
   font-weight: 900;
   padding: 6px 10px;
   text-transform: uppercase;
+}
+
+.post-button {
+  margin-top: 12px;
+  width: 100%;
+  border-width: 2px;
+  background: var(--orange);
+  color: #221207;
 }
 
 .description {
