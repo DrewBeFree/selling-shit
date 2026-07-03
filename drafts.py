@@ -28,6 +28,7 @@ def generate_platform_drafts(item: ListingItem) -> list[PlatformDraft]:
             icon_label="N",
             icon_class="nextdoor",
             post_url="https://nextdoor.com/for_sale_and_free/",
+            status_key="nextdoor",
         ),
         PlatformDraft(
             platform="eBay",
@@ -48,6 +49,7 @@ def generate_platform_drafts(item: ListingItem) -> list[PlatformDraft]:
             icon_label="e",
             icon_class="ebay",
             post_url="https://www.ebay.com/sl/sell",
+            status_key="ebay",
         ),
         PlatformDraft(
             platform="Facebook Marketplace",
@@ -65,5 +67,6 @@ def generate_platform_drafts(item: ListingItem) -> list[PlatformDraft]:
             icon_label="f",
             icon_class="facebook",
             post_url="https://www.facebook.com/marketplace/create/item",
+            status_key="facebook",
         ),
     ]

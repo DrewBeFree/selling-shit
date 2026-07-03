@@ -20,7 +20,7 @@ DEFAULT_CATALOG_INBOX = DEFAULT_CATALOGUE_DIR / "inbox"
 DEFAULT_CATALOG_ACTIVE = DEFAULT_CATALOGUE_DIR / "active"
 DEFAULT_CATALOG_ARCHIVE = DEFAULT_CATALOGUE_DIR / "archive"
 DEFAULT_LEGACY_UPLOAD_DIR = BASE_DIR / "uploads"
-APP_VERSION = "0.2.2"
+APP_VERSION = "0.2.3"
 COPYRIGHT_YEAR = 2026
 
 app = Flask(__name__)
@@ -133,6 +133,22 @@ def update_item_metadata(item_id: str):
     elif not is_sold:
         item.sold_at = None
 
+    store.upsert_item(item)
+    return redirect(url_for("home"))
+
+
+@app.route("/items/<item_id>/platform-status", methods=["POST"])
+def update_platform_status(item_id: str):
+    store = _store()
+    item = store.get_item(item_id)
+    if item is None:
+        abort(404)
+
+    platform = (request.form.get("platform") or "").strip()
+    if platform not in {"nextdoor", "ebay", "facebook"}:
+        abort(400)
+
+    item.posted_platforms[platform] = request.form.get("posted") == "true"
     store.upsert_item(item)
     return redirect(url_for("home"))
 

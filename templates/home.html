@@ -64,6 +64,19 @@
       </div>
     </section>
 
+    <section class="posting-instructions" aria-label="posting instructions">
+      <div>
+        <p class="eyebrow">Posting workflow</p>
+        <h2>Use the buttons as launchers, not auto-posters.</h2>
+      </div>
+      <ol>
+        <li>Click <strong>Copy + open post</strong> on the draft for the site you want.</li>
+        <li>Paste the copied title/body into that site's listing form and add photos manually.</li>
+        <li>After the listing is actually submitted, click <strong>Mark posted</strong> so the card tracks it.</li>
+      </ol>
+      <p>Marketplace APIs are not reliable for personal listings, so this app keeps your accounts safe by preparing the post instead of bot-posting it.</p>
+    </section>
+
     <section class="platform-strip" aria-label="draft platforms">
       {% for platform in platforms %}
         <span>{{ platform }}</span>
@@ -197,13 +210,17 @@
 
               <div class="draft-grid">
                 {% for draft in platform_drafts[item.id] %}
-                  <section class="draft-panel">
+                  {% set posted = item.posted_platforms.get(draft.status_key, false) %}
+                  <section class="draft-panel {{ draft.icon_class }}{% if posted %} posted{% endif %}">
                     <div class="draft-heading">
                       <h3>
                         <span class="market-icon {{ draft.icon_class }}" aria-hidden="true">{{ draft.icon_label }}</span>
                         {{ draft.platform }}
                       </h3>
                       <span>{{ draft.fields.price }}</span>
+                    </div>
+                    <div class="draft-status-row">
+                      <span class="post-status{% if posted %} posted{% endif %}">{{ "Posted" if posted else "Not posted" }}</span>
                     </div>
                     {% if draft.platform == "eBay" and draft.fields.get("auction ends") %}
                       <p class="auction-time"><strong>Auction ends:</strong> {{ draft.fields.get("auction ends") }}</p>
@@ -216,7 +233,14 @@
                       {% endfor %}
                     </ul>
                     <script type="application/json" class="draft-post-payload">{{ dict(title=draft.title, body=draft.body, fields=draft.fields)|tojson }}</script>
-                    <button class="post-button" type="button" data-post-url="{{ draft.post_url }}">Copy + open post</button>
+                    <div class="draft-actions">
+                      <button class="post-button {{ draft.icon_class }}" type="button" data-post-url="{{ draft.post_url }}">Copy + open post</button>
+                      <form method="post" action="{{ url_for('update_platform_status', item_id=item.id) }}">
+                        <input type="hidden" name="platform" value="{{ draft.status_key }}">
+                        <input type="hidden" name="posted" value="{{ 'false' if posted else 'true' }}">
+                        <button class="posted-toggle {{ draft.icon_class }}{% if posted %} posted{% endif %}" type="submit">{{ "Mark not posted" if posted else "Mark posted" }}</button>
+                      </form>
+                    </div>
                   </section>
                 {% endfor %}
               </div>

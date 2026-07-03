@@ -27,7 +27,8 @@ body {
 
 button,
 input,
-textarea {
+textarea,
+select {
   font: inherit;
 }
 
@@ -73,6 +74,7 @@ h1 {
 .drop-zone,
 .item-card,
 .stats-grid article,
+.posting-instructions,
 .draft-panel,
 .empty-state,
 dialog {
@@ -216,6 +218,37 @@ dt {
   margin: 18px 0 22px;
 }
 
+.posting-instructions {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.8fr) minmax(280px, 1fr) minmax(220px, 0.8fr);
+  gap: 16px;
+  align-items: start;
+  margin: 0 0 18px;
+  padding: 18px;
+  background: var(--card-soft);
+}
+
+.posting-instructions h2 {
+  margin: 0;
+  font-size: clamp(1.3rem, 2.8vw, 2.1rem);
+  line-height: 1;
+}
+
+.posting-instructions ol,
+.posting-instructions p {
+  margin: 0;
+  color: #34302b;
+  line-height: 1.45;
+}
+
+.posting-instructions ol {
+  padding-left: 22px;
+}
+
+.posting-instructions li + li {
+  margin-top: 6px;
+}
+
 .catalogue {
   display: grid;
   gap: 22px;
@@ -336,7 +369,8 @@ dt {
 }
 
 .text-action,
-.post-button {
+.post-button,
+.posted-toggle {
   border: 1px solid var(--orange);
   border-radius: 999px;
   background: var(--white);
@@ -348,12 +382,68 @@ dt {
   text-transform: uppercase;
 }
 
-.post-button {
+.draft-actions {
+  display: grid;
+  gap: 8px;
   margin-top: 12px;
+}
+
+.draft-actions form {
+  margin: 0;
+}
+
+.post-button,
+.posted-toggle {
   width: 100%;
   border-width: 2px;
-  background: var(--orange);
-  color: #221207;
+}
+
+.post-button.nextdoor,
+.posted-toggle.nextdoor.posted {
+  border-color: #1f8f4d;
+  background: #1f8f4d;
+  color: #fff;
+}
+
+.post-button.ebay,
+.posted-toggle.ebay.posted {
+  border-color: #e53238;
+  background: #e53238;
+  color: #fff;
+}
+
+.post-button.facebook,
+.posted-toggle.facebook.posted {
+  border-color: #1877f2;
+  background: #1877f2;
+  color: #fff;
+}
+
+.posted-toggle {
+  background: var(--white);
+  color: var(--muted);
+}
+
+.draft-status-row {
+  display: flex;
+  margin: -2px 0 10px;
+}
+
+.post-status {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  padding: 4px 9px;
+  text-transform: uppercase;
+}
+
+.post-status.posted {
+  border-color: #1f8f4d;
+  background: rgba(31, 143, 77, 0.12);
+  color: #1f8f4d;
 }
 
 .description {
@@ -635,6 +725,7 @@ dialog::backdrop {
 
 @media (max-width: 980px) {
   .command-deck,
+  .posting-instructions,
   .item-card,
   .archive-card,
   .draft-grid {

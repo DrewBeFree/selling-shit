@@ -33,9 +33,9 @@ def test_pages_render_version_and_copyright_footer(tmp_path):
     home_response = client.get("/")
     archive_response = client.get("/archive")
 
-    assert b"v0.2.2" in home_response.data
+    assert b"v0.2.3" in home_response.data
     assert b"&copy; 2026 Andrew Webb" in home_response.data
-    assert b"v0.2.2" in archive_response.data
+    assert b"v0.2.3" in archive_response.data
     assert b"&copy; 2026 Andrew Webb" in archive_response.data
 
 
@@ -70,7 +70,14 @@ def test_listing_post_renders_draft_and_saves_upload(tmp_path):
     assert b"Responses" in response.data
     assert b"Time left" in response.data
     assert b"eBay" in response.data
-    assert response.data.count(b'class="post-button"') == 3
+    assert b"Use the buttons as launchers, not auto-posters." in response.data
+    assert b"Marketplace APIs are not reliable for personal listings" in response.data
+    assert response.data.count(b"post-button") >= 3
+    assert response.data.count(b"Not posted") == 3
+    assert response.data.count(b"posted-toggle") == 3
+    assert b'class="post-button nextdoor"' in response.data
+    assert b'class="post-button ebay"' in response.data
+    assert b'class="post-button facebook"' in response.data
     assert b"Copy + open post" in response.data
     assert b"https://www.facebook.com/marketplace/create/item" in response.data
     assert b"https://www.ebay.com/sl/sell" in response.data
@@ -439,6 +446,67 @@ def test_metadata_route_updates_listing_state_counts_notes_and_dates(tmp_path):
     assert '"listing_type": "auction"' in saved
     assert '"auction_ends_at": "2026-07-01T21:30:00+00:00"' in saved
     assert '"sold_at": null' not in saved
+
+
+def test_platform_status_route_marks_draft_posted_and_unposted(tmp_path):
+    catalog_path = tmp_path / "catalog.json"
+    catalog_path.write_text(
+        """{
+  "items": [
+    {
+      "id": "item-1",
+      "title": "Controller",
+      "description": "",
+      "price": "50",
+      "photo_paths": [],
+      "created_at": "2026-06-23T15:34:29+00:00",
+      "deadline_at": null,
+      "auction_ends_at": null,
+      "sold_at": null,
+      "archived_at": null,
+      "status": "ready",
+      "listing_type": "fixed_price",
+      "sold_price": "",
+      "notes": "",
+      "watch_count": 0,
+      "response_count": 0,
+      "source_folder": null
+    }
+  ]
+}""",
+        encoding="utf-8",
+    )
+    app.config.update(
+        TESTING=True,
+        UPLOAD_FOLDER=str(tmp_path / "catalogue" / "active"),
+        CATALOG_PATH=str(catalog_path),
+        CATALOG_INBOX=str(tmp_path / "catalogue" / "inbox"),
+        CATALOG_ACTIVE=str(tmp_path / "catalogue" / "active"),
+        CATALOG_ARCHIVE=str(tmp_path / "catalogue" / "archive"),
+    )
+    client = app.test_client()
+
+    posted_response = client.post(
+        "/items/item-1/platform-status",
+        data={"platform": "facebook", "posted": "true"},
+        follow_redirects=True,
+    )
+    saved = catalog_path.read_text(encoding="utf-8")
+
+    assert posted_response.status_code == 200
+    assert '"posted_platforms": {' in saved
+    assert '"facebook": true' in saved
+    assert b"Posted" in posted_response.data
+    assert b"Mark not posted" in posted_response.data
+
+    unposted_response = client.post(
+        "/items/item-1/platform-status",
+        data={"platform": "facebook", "posted": "false"},
+        follow_redirects=True,
+    )
+
+    assert unposted_response.status_code == 200
+    assert '"facebook": false' in catalog_path.read_text(encoding="utf-8")
 
 
 def test_archive_route_hides_item_from_dashboard_and_archive_page_shows_it(tmp_path):

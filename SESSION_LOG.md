@@ -364,3 +364,34 @@ Temporary Flask debug server was stopped after browser verification.
 
 **Next up:**
 - Commit on `dev`, merge to `main`, push both branches, then verify `https://sell.drewbefree.com/` after the final restart.
+
+## 2026-07-03 (posting instructions and posted status)
+
+**What we did:**
+- Added an on-page posting workflow explaining that marketplace APIs are not reliable for personal resale listings and that this app is a safe copy/open launcher.
+- Added per-platform posted state for each listing draft with visible `Posted` / `Not posted` labels.
+- Added `POST /items/<item_id>/platform-status` so each platform card can be marked posted or not posted after manual submission.
+- Colored Copy + open post buttons to match each marketplace: Nextdoor green, eBay red, Facebook blue.
+- Bumped app version to `v0.2.3`.
+- Updated README and HANDOFF notes.
+
+**Commands run:**
+
+```bash
+cd /home/drew/GitHub/apps/selling-shit
+git status --short --branch
+. .venv/bin/activate && python -m pytest -q
+```
+
+**Observed result:**
+
+```text
+Tests: 30 passed.
+```
+
+**Where we stopped:**
+- Changes are ready for commit/push/restart on `main`.
+- The posted status is manually controlled; clicking Copy + open does not mark posted automatically because the marketplace submission still happens outside this app.
+
+**Next up:**
+- Restart `selling-shit.service` after commit/push and verify `https://sell.drewbefree.com/` renders v0.2.3 with the instructions and posted labels.
