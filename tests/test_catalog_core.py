@@ -103,6 +103,90 @@ def test_catalog_store_summary_tracks_live_sold_value_and_listing_age(tmp_path):
     assert summary["listing_age"].startswith("2d ")
 
 
+def test_catalog_store_summary_tracks_action_and_health_metrics(tmp_path):
+    store = CatalogStore(tmp_path / "catalog.json")
+    now = datetime.now(timezone.utc)
+    store.upsert_item(
+        ListingItem(
+            id="stale-draft",
+            title="Untitled item",
+            description="Description needed.",
+            price="0",
+            photo_paths=[],
+            status="drafting",
+            created_at=now - timedelta(days=8),
+        )
+    )
+    store.upsert_item(
+        ListingItem(
+            id="ready-gap",
+            title="Ready table",
+            description="Small table with a storage shelf.",
+            price="40",
+            photo_paths=["uploads/ready/table.jpg"],
+            status="ready",
+            posted_platforms={"nextdoor": True, "ebay": False, "facebook": False},
+            created_at=now - timedelta(days=2),
+        )
+    )
+    store.upsert_item(
+        ListingItem(
+            id="listed-gap",
+            title="Listed lamp",
+            description="Working brass desk lamp.",
+            price="25",
+            photo_paths=["uploads/listed/lamp.jpg"],
+            status="listed",
+            posted_platforms={"nextdoor": True, "ebay": True, "facebook": False},
+            created_at=now - timedelta(days=1),
+            response_count=1,
+        )
+    )
+    store.upsert_item(
+        ListingItem(
+            id="auction-ended",
+            title="Auction controller",
+            description="Limited edition controller with original box.",
+            price="55",
+            photo_paths=["uploads/auction/controller.jpg"],
+            status="listed",
+            listing_type="auction",
+            auction_ends_at=now - timedelta(hours=1),
+            posted_platforms={"nextdoor": True, "ebay": True, "facebook": True},
+            created_at=now - timedelta(days=4),
+        )
+    )
+    store.upsert_item(
+        ListingItem(
+            id="sold-recent",
+            title="Sold chair",
+            description="Sold already.",
+            price="20",
+            sold_price="18",
+            photo_paths=["uploads/sold/chair.jpg"],
+            status="sold",
+            sold_at=now - timedelta(days=5),
+            created_at=now - timedelta(days=9),
+        )
+    )
+
+    summary = store.summary()
+
+    assert summary["listed"] == 2
+    assert summary["needs_photos"] == 1
+    assert summary["needs_details"] == 1
+    assert summary["stale_drafts"] == 1
+    assert summary["platform_gap_total"] == 2
+    assert summary["platform_gaps"] == {"nextdoor": 0, "ebay": 1, "facebook": 2}
+    assert summary["auction_due"] == 1
+    assert summary["auction_ended"] == 1
+    assert summary["next_auction_deadline"] == "None scheduled"
+    assert summary["avg_live_age"] == "3d avg"
+    assert summary["conversion_rate"] == "25%"
+    assert summary["sold_30d"] == 1
+    assert summary["response_rate"] == "25%"
+
+
 def test_catalog_store_summary_tracks_sold_totals_across_archived_items(tmp_path):
     store = CatalogStore(tmp_path / "catalog.json")
     store.upsert_item(

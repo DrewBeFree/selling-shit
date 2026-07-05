@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import shutil
+from io import BytesIO
 from datetime import datetime, timezone
 from pathlib import Path
+from zipfile import ZIP_DEFLATED, ZipFile
 
-from flask import Flask, abort, redirect, render_template, request, send_from_directory, url_for
+from flask import Flask, abort, redirect, render_template, request, send_file, send_from_directory, url_for
 from werkzeug.utils import secure_filename
 
 from drafts import generate_platform_drafts
@@ -20,7 +22,7 @@ DEFAULT_CATALOG_INBOX = DEFAULT_CATALOGUE_DIR / "inbox"
 DEFAULT_CATALOG_ACTIVE = DEFAULT_CATALOGUE_DIR / "active"
 DEFAULT_CATALOG_ARCHIVE = DEFAULT_CATALOGUE_DIR / "archive"
 DEFAULT_LEGACY_UPLOAD_DIR = BASE_DIR / "uploads"
-APP_VERSION = "0.2.3"
+APP_VERSION = "0.2.4"
 COPYRIGHT_YEAR = 2026
 
 app = Flask(__name__)
@@ -149,6 +151,11 @@ def update_platform_status(item_id: str):
         abort(400)
 
     item.posted_platforms[platform] = request.form.get("posted") == "true"
+    posted_url = (request.form.get("posted_url") or "").strip()
+    if posted_url:
+        item.posted_urls[platform] = posted_url
+    elif platform in item.posted_urls:
+        del item.posted_urls[platform]
     store.upsert_item(item)
     return redirect(url_for("home"))
 
@@ -191,16 +198,30 @@ def item_photo(item_id: str, photo_index: int):
     if item is None or photo_index < 0 or photo_index >= len(item.photo_paths):
         abort(404)
 
-    photo_path = (_media_base_dir() / item.photo_paths[photo_index]).resolve()
-    allowed_roots = [
-        _catalogue_dir().resolve(),
-        Path(app.config["UPLOAD_FOLDER"]).resolve(),
-        _legacy_upload_dir().resolve(),
-    ]
-    if not any(root == photo_path or root in photo_path.parents for root in allowed_roots):
-        abort(404)
+    photo_path = _resolve_item_photo_path(item.photo_paths[photo_index])
 
     return send_from_directory(photo_path.parent, photo_path.name)
+
+
+@app.route("/items/<item_id>/photos.zip")
+def item_photos_zip(item_id: str):
+    item = _store().get_item(item_id)
+    if item is None or not item.photo_paths:
+        abort(404)
+
+    archive = BytesIO()
+    with ZipFile(archive, "w", ZIP_DEFLATED) as zip_file:
+        for index, photo_path in enumerate(item.photo_paths, start=1):
+            resolved_path = _resolve_item_photo_path(photo_path)
+            zip_file.write(resolved_path, f"{index:02d}-{resolved_path.name}")
+
+    archive.seek(0)
+    return send_file(
+        archive,
+        mimetype="application/zip",
+        as_attachment=True,
+        download_name=f"{secure_filename(item.title or item.id) or item.id}-photos.zip",
+    )
 
 
 def _clean_choice(value: str | None, *, allowed: set[str], default: str) -> str:
@@ -271,6 +292,20 @@ def _legacy_upload_dir() -> Path:
 
 def _media_base_dir() -> Path:
     return _catalogue_dir().parent
+
+
+def _resolve_item_photo_path(photo_path: str) -> Path:
+    resolved_path = (_media_base_dir() / photo_path).resolve()
+    allowed_roots = [
+        _catalogue_dir().resolve(),
+        Path(app.config["UPLOAD_FOLDER"]).resolve(),
+        _legacy_upload_dir().resolve(),
+    ]
+    if not any(root == resolved_path or root in resolved_path.parents for root in allowed_roots):
+        abort(404)
+    if not resolved_path.exists() or not resolved_path.is_file():
+        abort(404)
+    return resolved_path
 
 
 def _move_item_folder(item, source_root: Path, destination_root: Path, destination_prefix: str) -> None:

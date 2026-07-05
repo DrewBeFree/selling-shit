@@ -33,6 +33,39 @@
       </form>
 
       <div class="stats-grid analytics-panel" aria-label="catalog analytics">
+        <p class="stats-section-label">Needs action</p>
+        <article class="attention-card{% if summary.needs_photos %} active{% endif %}">
+          <span>Needs photos</span>
+          <strong>{{ summary.needs_photos }}</strong>
+        </article>
+        <article class="attention-card{% if summary.needs_details %} active{% endif %}">
+          <span>Needs details</span>
+          <strong>{{ summary.needs_details }}</strong>
+        </article>
+        <article class="attention-card{% if summary.stale_drafts %} active{% endif %}">
+          <span>Stale drafts</span>
+          <strong>{{ summary.stale_drafts }}</strong>
+        </article>
+        <article class="attention-card{% if summary.platform_gap_total %} active{% endif %}">
+          <span>Post gaps</span>
+          <strong>{{ summary.platform_gap_total }}</strong>
+          <small class="metric-subline">ND {{ summary.platform_gaps.nextdoor }} / eBay {{ summary.platform_gaps.ebay }} / FB {{ summary.platform_gaps.facebook }}</small>
+        </article>
+        <article class="attention-card{% if summary.auction_due %} active{% endif %}">
+          <span>Auction due</span>
+          <strong>{{ summary.auction_due }}</strong>
+          <small class="metric-subline">
+            {% if summary.auction_ended %}
+              {{ summary.auction_ended }} ended
+            {% elif summary.next_auction_deadline != "None scheduled" %}
+              Next {{ summary.next_auction_deadline }}
+            {% else %}
+              None scheduled
+            {% endif %}
+          </small>
+        </article>
+
+        <p class="stats-section-label">Inventory</p>
         <article>
           <span>Total</span>
           <strong>{{ summary.total }}</strong>
@@ -46,6 +79,12 @@
           <strong>{{ summary.ready }}</strong>
         </article>
         <article>
+          <span>Listed</span>
+          <strong>{{ summary.listed }}</strong>
+        </article>
+
+        <p class="stats-section-label">Momentum</p>
+        <article>
           <span>Responses</span>
           <strong>{{ summary.responses }}</strong>
         </article>
@@ -53,6 +92,28 @@
           <span>Sold</span>
           <strong>{{ summary.sold }}</strong>
         </article>
+        <article>
+          <span>Avg live age</span>
+          <strong>{{ summary.avg_live_age }}</strong>
+        </article>
+        <article>
+          <span>Oldest live</span>
+          <strong>{{ summary.listing_age }}</strong>
+        </article>
+        <article>
+          <span>Conversion</span>
+          <strong>{{ summary.conversion_rate }}</strong>
+        </article>
+        <article>
+          <span>30d sold</span>
+          <strong>{{ summary.sold_30d }}</strong>
+        </article>
+        <article>
+          <span>Response rate</span>
+          <strong>{{ summary.response_rate }}</strong>
+        </article>
+
+        <p class="stats-section-label">Value</p>
         <article class="value-card">
           <span>Live value</span>
           <strong>{{ summary.live_value }}</strong>
@@ -71,7 +132,7 @@
       </div>
       <ol>
         <li>Click <strong>Copy + open post</strong> on the draft for the site you want.</li>
-        <li>Paste the copied title/body into that site's listing form and add photos manually.</li>
+        <li>Paste the copied title/body into that site's listing form, then drag photos from the photo tray or download/unzip the photo pack.</li>
         <li>After the listing is actually submitted, click <strong>Mark posted</strong> so the card tracks it.</li>
       </ol>
       <p>Marketplace APIs are not reliable for personal listings, so this app keeps your accounts safe by preparing the post instead of bot-posting it.</p>
@@ -138,6 +199,29 @@
               </div>
 
               <p class="description">{{ item.description or "Description needed." }}</p>
+
+              {% if item.photo_paths %}
+                <section class="photo-tools" aria-label="{{ item.title }} photo tools">
+                  <div>
+                    <p class="eyebrow">Photos</p>
+                    <h3>Drag photos into marketplace upload boxes.</h3>
+                    <p>Most sites do not accept ZIP uploads. Use the ZIP as a fallback to download everything, unzip it, then upload the raw images.</p>
+                  </div>
+                  <div class="photo-tool-actions">
+                    <button class="text-action copy-photo-links" type="button">Copy photo links</button>
+                    <a class="text-action photo-zip-link" href="{{ url_for('item_photos_zip', item_id=item.id) }}">Download ZIP fallback</a>
+                  </div>
+                  <div class="photo-tray" aria-label="Draggable photos for {{ item.title }}">
+                    {% for photo_path in item.photo_paths %}
+                      {% set photo_url = url_for('item_photo', item_id=item.id, photo_index=loop.index0) %}
+                      {% set full_photo_url = url_for('item_photo', item_id=item.id, photo_index=loop.index0, _external=True) %}
+                      <a class="photo-tray-link" href="{{ photo_url }}" target="_blank" rel="noopener" data-photo-link="{{ full_photo_url }}" draggable="true" title="Open photo {{ loop.index }}">
+                        <img src="{{ photo_url }}" alt="{{ item.title }} photo {{ loop.index }}" draggable="true">
+                      </a>
+                    {% endfor %}
+                  </div>
+                </section>
+              {% endif %}
 
               <dl class="signals">
                 <div>
@@ -221,6 +305,9 @@
                     </div>
                     <div class="draft-status-row">
                       <span class="post-status{% if posted %} posted{% endif %}">{{ "Posted" if posted else "Not posted" }}</span>
+                      {% if posted and item.posted_urls.get(draft.status_key) %}
+                        <a class="post-status posted view-listing" href="{{ item.posted_urls[draft.status_key] }}" target="_blank" rel="noopener">View listing</a>
+                      {% endif %}
                     </div>
                     {% if draft.platform == "eBay" and draft.fields.get("auction ends") %}
                       <p class="auction-time"><strong>Auction ends:</strong> {{ draft.fields.get("auction ends") }}</p>
@@ -238,6 +325,10 @@
                       <form method="post" action="{{ url_for('update_platform_status', item_id=item.id) }}">
                         <input type="hidden" name="platform" value="{{ draft.status_key }}">
                         <input type="hidden" name="posted" value="{{ 'false' if posted else 'true' }}">
+                        <label class="posted-url-field">
+                          <span class="eyebrow">Listing URL</span>
+                          <input type="url" name="posted_url" value="{{ item.posted_urls.get(draft.status_key, '') }}" placeholder="https://...">
+                        </label>
                         <button class="posted-toggle {{ draft.icon_class }}{% if posted %} posted{% endif %}" type="submit">{{ "Mark not posted" if posted else "Mark posted" }}</button>
                       </form>
                     </div>
@@ -337,7 +428,10 @@
       const fieldLines = Object.entries(payload.fields || {}).map(
         ([label, value]) => `${label.replaceAll("_", " ")}: ${value}`,
       );
-      return [payload.title, "", payload.body, "", ...fieldLines].filter(Boolean).join("\n");
+      const photoLines = (payload.photo_urls || []).length
+        ? ["", "Photos:", ...(payload.photo_urls || [])]
+        : [];
+      return [payload.title, "", payload.body, "", ...fieldLines, ...photoLines].filter(Boolean).join("\n");
     }
 
     async function copyPostText(text) {
@@ -359,7 +453,9 @@
     document.querySelectorAll(".post-button").forEach((button) => {
       button.addEventListener("click", async () => {
         const panel = button.closest(".draft-panel");
+        const card = button.closest(".item-card");
         const payload = JSON.parse(panel.querySelector(".draft-post-payload").textContent);
+        payload.photo_urls = Array.from(card.querySelectorAll("[data-photo-link]"), (link) => link.dataset.photoLink);
         try {
           await copyPostText(buildPostText(payload));
           button.textContent = "Copied — opening...";
@@ -371,6 +467,23 @@
           button.textContent = "Copy + open post";
         }, 1600);
         window.open(button.dataset.postUrl, "_blank", "noopener,noreferrer");
+      });
+    });
+
+    document.querySelectorAll(".copy-photo-links").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const card = button.closest(".item-card");
+        const links = Array.from(card.querySelectorAll("[data-photo-link]"), (link) => link.dataset.photoLink);
+        try {
+          await copyPostText(links.join("\n"));
+          button.textContent = "Photo links copied";
+        } catch (error) {
+          console.warn("Could not copy photo links", error);
+          button.textContent = "Copy failed";
+        }
+        setTimeout(() => {
+          button.textContent = "Copy photo links";
+        }, 1600);
       });
     });
 
