@@ -235,6 +235,59 @@ def test_item_photos_zip_route_downloads_all_raw_photos(tmp_path):
         assert archive.read("02-back.jpg") == b"back"
 
 
+def test_facebook_preview_route_renders_marketplace_style_demo(tmp_path):
+    upload_dir = tmp_path / "uploads"
+    item_dir = upload_dir / "item-1"
+    item_dir.mkdir(parents=True)
+    (item_dir / "front.jpg").write_bytes(b"front")
+    (item_dir / "interior.jpg").write_bytes(b"interior")
+    catalog_path = tmp_path / "catalog.json"
+    catalog_path.write_text(
+        """{
+  "items": [
+    {
+      "id": "item-1",
+      "title": "2023 Subaru BRZ 6-Speed Manual",
+      "description": "World Rally Blue. Stock/no mods. No accidents or known mechanical issues.",
+      "price": "29500",
+      "photo_paths": ["uploads/item-1/front.jpg", "uploads/item-1/interior.jpg"],
+      "created_at": "2026-06-23T15:34:29+00:00",
+      "deadline_at": null,
+      "status": "ready",
+      "watch_count": 0,
+      "response_count": 0,
+      "source_folder": null
+    }
+  ]
+}""",
+        encoding="utf-8",
+    )
+    app.config.update(
+        TESTING=True,
+        UPLOAD_FOLDER=str(upload_dir),
+        CATALOG_PATH=str(catalog_path),
+        CATALOG_INBOX=str(tmp_path / "catalogue" / "inbox"),
+        CATALOG_ACTIVE=str(tmp_path / "catalogue" / "active"),
+        CATALOG_ARCHIVE=str(tmp_path / "catalogue" / "archive"),
+    )
+    client = app.test_client()
+
+    dashboard_response = client.get("/")
+    preview_response = client.get("/items/item-1/facebook-preview")
+
+    assert dashboard_response.status_code == 200
+    assert b"Preview Facebook Post" in dashboard_response.data
+    assert b'href="/items/item-1/facebook-preview"' in dashboard_response.data
+    assert preview_response.status_code == 200
+    assert b"Marketplace demo preview" in preview_response.data
+    assert b"2023 Subaru BRZ 6-Speed Manual" in preview_response.data
+    assert b"$29,500" in preview_response.data
+    assert b"World Rally Blue" in preview_response.data
+    assert b"See all 2 photos" in preview_response.data
+    assert b"/items/item-1/photos/0" in preview_response.data
+    assert b"scuff" not in preview_response.data.lower()
+
+
 def test_dashboard_renders_featured_photo_carousel(tmp_path):
     from PIL import Image
 

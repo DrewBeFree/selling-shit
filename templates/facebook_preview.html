@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Facebook Marketplace Preview — {{ item.title }}</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #f0f2f5;
+      color: #050505;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .topbar {
+      align-items: center;
+      background: #fff;
+      border-bottom: 1px solid #dddfe2;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      display: flex;
+      gap: 14px;
+      height: 56px;
+      padding: 0 18px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .fb-dot {
+      background: #1877f2;
+      border-radius: 999px;
+      color: white;
+      display: grid;
+      font-size: 25px;
+      font-weight: 800;
+      height: 38px;
+      place-items: center;
+      width: 38px;
+    }
+    .search {
+      background: #f0f2f5;
+      border-radius: 999px;
+      color: #65676b;
+      font-size: 14px;
+      min-width: 280px;
+      padding: 10px 16px;
+    }
+    .muted { color: #65676b; font-size: 13px; }
+    .shell {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: minmax(0, 1.25fr) 420px;
+      margin: 24px auto 60px;
+      max-width: 1240px;
+      padding: 0 18px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+      overflow: hidden;
+    }
+    .photo-grid {
+      background: #fff;
+      display: grid;
+      gap: 4px;
+      grid-template-columns: 2fr 1fr;
+      grid-template-rows: 260px 260px;
+    }
+    .photo-grid img {
+      display: block;
+      height: 100%;
+      object-fit: cover;
+      width: 100%;
+    }
+    .hero { grid-row: span 2; }
+    .thumb-wrap { position: relative; }
+    .overlay {
+      background: rgba(0, 0, 0, 0.32);
+      color: white;
+      display: grid;
+      font-size: 20px;
+      font-weight: 700;
+      inset: 0;
+      place-items: center;
+      position: absolute;
+      text-align: center;
+    }
+    .gallery-strip {
+      border-top: 1px solid #e4e6eb;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(6, 1fr);
+      padding: 10px;
+    }
+    .gallery-strip img {
+      aspect-ratio: 4 / 3;
+      border: 1px solid #e4e6eb;
+      border-radius: 8px;
+      object-fit: cover;
+      width: 100%;
+    }
+    .details { padding: 18px 20px 22px; }
+    h1 {
+      font-size: 24px;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+      margin: 0 0 6px;
+    }
+    .price {
+      font-size: 24px;
+      font-weight: 800;
+      margin: 0 0 10px;
+    }
+    .meta {
+      color: #65676b;
+      display: flex;
+      flex-wrap: wrap;
+      font-size: 14px;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .pill {
+      background: #f0f2f5;
+      border-radius: 999px;
+      color: #1c1e21;
+      font-weight: 600;
+      padding: 7px 10px;
+    }
+    .section-title {
+      font-size: 17px;
+      font-weight: 750;
+      margin: 18px 0 8px;
+    }
+    .description {
+      color: #1c1e21;
+      font-size: 15px;
+      line-height: 1.45;
+      white-space: pre-line;
+    }
+    .sidebar {
+      align-self: start;
+      position: sticky;
+      top: 76px;
+    }
+    .seller { padding: 18px; }
+    .profile-row {
+      align-items: center;
+      border-bottom: 1px solid #e4e6eb;
+      display: flex;
+      gap: 12px;
+      margin-bottom: 14px;
+      padding-bottom: 14px;
+    }
+    .avatar {
+      background: linear-gradient(135deg, #1877f2, #42b72a);
+      border-radius: 999px;
+      color: white;
+      display: grid;
+      font-weight: 800;
+      height: 46px;
+      place-items: center;
+      width: 46px;
+    }
+    .button {
+      background: #1877f2;
+      border: 0;
+      border-radius: 8px;
+      color: white;
+      cursor: default;
+      display: block;
+      font-size: 15px;
+      font-weight: 750;
+      margin-top: 10px;
+      padding: 11px 12px;
+      text-align: center;
+      text-decoration: none;
+      width: 100%;
+    }
+    .secondary { background: #e4e6eb; color: #050505; }
+    .field {
+      background: #f0f2f5;
+      border-radius: 10px;
+      color: #65676b;
+      font-size: 14px;
+      margin-top: 12px;
+      padding: 12px;
+    }
+    .checklist {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: 1fr 1fr;
+      margin-top: 8px;
+    }
+    .spec {
+      background: #f7f8fa;
+      border: 1px solid #e4e6eb;
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .spec b { color: #65676b; display: block; font-size: 13px; margin-bottom: 3px; }
+    .note {
+      background: #fff8dd;
+      border: 1px solid #f3df8e;
+      border-radius: 10px;
+      color: #574600;
+      font-size: 13px;
+      line-height: 1.35;
+      margin-top: 12px;
+      padding: 10px 12px;
+    }
+    .empty-photo {
+      background: #d8dce3;
+      color: #65676b;
+      display: grid;
+      font-weight: 700;
+      min-height: 360px;
+      place-items: center;
+    }
+    @media (max-width: 900px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      .photo-grid { grid-template-columns: 1fr; grid-template-rows: 320px 170px 170px; }
+      .hero { grid-row: auto; }
+      .gallery-strip { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="fb-dot">f</div>
+    <div class="search">Search Marketplace</div>
+    <div class="muted">Marketplace demo preview — not affiliated with Facebook</div>
+  </div>
+
+  <main class="shell">
+    <section class="card">
+      {% if photo_urls %}
+        <div class="photo-grid">
+          <img class="hero" src="{{ photo_urls[0] }}" alt="{{ item.title }} main photo">
+          <img src="{{ photo_urls[1] if photo_count > 1 else photo_urls[0] }}" alt="{{ item.title }} secondary photo">
+          <div class="thumb-wrap">
+            <img src="{{ photo_urls[2] if photo_count > 2 else photo_urls[0] }}" alt="{{ item.title }} gallery photo">
+            <div class="overlay">See all {{ photo_count }} photos</div>
+          </div>
+        </div>
+        <div class="gallery-strip">
+          {% for photo_url in photo_urls[:6] %}
+            <img src="{{ photo_url }}" alt="{{ item.title }} photo {{ loop.index }}">
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-photo">No photos attached yet</div>
+      {% endif %}
+
+      <div class="details">
+        <div class="price">{{ price_label }}</div>
+        <h1>{{ draft.title }}</h1>
+        <div class="meta">
+          <span>Listed locally</span>
+          <span>·</span>
+          <span>Vehicles / Marketplace</span>
+          <span>·</span>
+          <span>Preview</span>
+        </div>
+        <div class="meta">
+          {% for label, value in draft.fields.items() %}
+            <span class="pill">{{ label|replace("_", " ")|title }}: {{ value }}</span>
+          {% endfor %}
+        </div>
+
+        <div class="section-title">Seller's Description</div>
+        <div class="description">{{ draft.body }}</div>
+
+        <div class="section-title">Listing details</div>
+        <div class="checklist">
+          <div class="spec"><b>Title</b>{{ item.title }}</div>
+          <div class="spec"><b>Price</b>{{ price_label }}</div>
+          <div class="spec"><b>Photos</b>{{ photo_count }}</div>
+          <div class="spec"><b>Status</b>{{ item.status }}</div>
+        </div>
+        <div class="note">Demo only: verify final price, mileage, location, and platform-required fields before posting.</div>
+      </div>
+    </section>
+
+    <aside class="card sidebar">
+      <div class="seller">
+        <div class="profile-row">
+          <div class="avatar">DW</div>
+          <div>
+            <div style="font-weight:750">Drew Webb</div>
+            <div class="muted">Seller preview</div>
+          </div>
+        </div>
+        <a class="button" href="{{ draft.post_url }}" target="_blank" rel="noopener">Open Facebook create page</a>
+        <a class="button secondary" href="{{ url_for('home') }}">Back to dashboard</a>
+        <div class="field">Hi Drew, is this still available?</div>
+        <div class="section-title">Suggested first reply</div>
+        <div class="description" style="font-size:14px">Yes, it is still available. If you are serious, send a good time to come see it and I can share details.</div>
+      </div>
+    </aside>
+  </main>
+</body>
+</html>

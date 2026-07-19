@@ -395,3 +395,24 @@ Tests: 30 passed.
 
 **Next up:**
 - Restart `selling-shit.service` after commit/push and verify `https://sell.drewbefree.com/` renders v0.2.3 with the instructions and posted labels.
+
+## 2026-07-19 (Facebook Marketplace visual preview)
+
+**What we did:**
+- Added a `Preview Facebook Post` dashboard action for Facebook Marketplace drafts.
+- Added `GET /items/<item-id>/facebook-preview`, rendering a Facebook Marketplace-style visual mockup using the item photos, generated draft, price, and status.
+- Kept posting behavior as browser-assisted: the app can preview/copy/open Facebook's create page, but it does not silently auto-post to Facebook Marketplace.
+- Updated generated draft price formatting to use thousands separators, e.g. `$29,500`.
+
+**Verification:**
+- Focused RED/GREEN test: `PYTHONPATH=. pytest -q tests/test_app.py::test_facebook_preview_route_renders_marketplace_style_demo` passed after implementation.
+- Full suite: `PYTHONPATH=. pytest -q` reported `33 passed`.
+- Isolated temporary server on `127.0.0.1:5091` returned HTTP 200 for `/` and `/items/brz-demo/facebook-preview`.
+- Browser visual smoke verified the preview page loaded BRZ photos, showed formatted price, and contained no scuff/glovebox mention.
+
+**Safety notes:**
+- No live Facebook posting/API integration was added.
+- Smoke test used `/tmp/selling-shit-brz-preview-demo` and did not touch the production catalog.
+
+**Next up:**
+- If Drew wants deeper posting assistance, add a guided checklist or browser-fill helper that stops before the final Facebook publish action. Avoid promising unattended Marketplace posting.

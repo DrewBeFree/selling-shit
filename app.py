@@ -224,6 +224,29 @@ def item_photos_zip(item_id: str):
     )
 
 
+@app.route("/items/<item_id>/facebook-preview")
+def facebook_preview(item_id: str):
+    item = _store().get_item(item_id)
+    if item is None:
+        abort(404)
+
+    facebook_draft = next(
+        draft for draft in generate_platform_drafts(item) if draft.status_key == "facebook"
+    )
+    photo_urls = [
+        url_for("item_photo", item_id=item.id, photo_index=index)
+        for index, _photo_path in enumerate(item.photo_paths)
+    ]
+    return render_template(
+        "facebook_preview.html",
+        item=item,
+        draft=facebook_draft,
+        photo_urls=photo_urls,
+        photo_count=len(photo_urls),
+        price_label=_format_listing_price(item.price),
+    )
+
+
 def _clean_choice(value: str | None, *, allowed: set[str], default: str) -> str:
     candidate = (value or "").strip()
     if candidate in allowed:
@@ -245,6 +268,16 @@ def _parse_datetime_local(value: str | None) -> datetime | None:
     if parsed.tzinfo is None:
         return parsed.replace(tzinfo=timezone.utc)
     return parsed
+
+
+def _format_listing_price(value: str) -> str:
+    try:
+        amount = float(value.replace(",", ""))
+    except (AttributeError, ValueError):
+        return "$TBD"
+    if amount.is_integer():
+        return f"${int(amount):,}"
+    return f"${amount:,.2f}"
 
 
 def _store() -> CatalogStore:
@@ -345,6 +378,7 @@ def _render_dashboard(active_item_id: str | None = None):
         items=items,
         platform_drafts=platform_drafts,
         featured_photos=featured_photos,
+        price_labels={item.id: _format_listing_price(item.price) for item in items},
         summary=store.summary(),
         platforms=["Nextdoor", "eBay", "Facebook Marketplace"],
         catalog_inbox=_catalog_inbox(),

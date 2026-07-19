@@ -191,7 +191,7 @@
                   <h2>{{ item.title }}</h2>
                 </div>
                 <div class="item-actions">
-                  <strong class="price">${{ item.price or "TBD" }}</strong>
+                  <strong class="price">{{ price_labels[item.id] }}</strong>
                   <form method="post" action="{{ url_for('archive_item', item_id=item.id) }}">
                     <button class="text-action" type="submit">Archive</button>
                   </form>
@@ -321,6 +321,9 @@
                     </ul>
                     <script type="application/json" class="draft-post-payload">{{ dict(title=draft.title, body=draft.body, fields=draft.fields)|tojson }}</script>
                     <div class="draft-actions">
+                      {% if draft.status_key == "facebook" %}
+                        <a class="preview-button facebook" href="{{ url_for('facebook_preview', item_id=item.id) }}" target="_blank" rel="noopener">Preview Facebook Post</a>
+                      {% endif %}
                       <button class="post-button {{ draft.icon_class }}" type="button" data-post-url="{{ draft.post_url }}">Copy + open post</button>
                       <form method="post" action="{{ url_for('update_platform_status', item_id=item.id) }}">
                         <input type="hidden" name="platform" value="{{ draft.status_key }}">

@@ -406,6 +406,7 @@ dt {
 
 .text-action,
 .post-button,
+.preview-button,
 .posted-toggle {
   border: 1px solid var(--orange);
   border-radius: 999px;
@@ -495,6 +496,7 @@ dt {
 }
 
 .post-button,
+.preview-button,
 .posted-toggle {
   width: 100%;
   border-width: 2px;
@@ -515,6 +517,7 @@ dt {
 }
 
 .post-button.facebook,
+.preview-button.facebook,
 .posted-toggle.facebook.posted {
   border-color: #1877f2;
   background: #1877f2;

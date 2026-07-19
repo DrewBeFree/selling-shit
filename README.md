@@ -2,7 +2,7 @@
 
 Marketplace listing draft dashboard for turning item photos and rough notes into platform-specific drafts for Nextdoor, eBay, and Facebook Marketplace.
 
-Each generated platform draft includes a **Copy + open post** button that copies the formatted draft text and opens that marketplace's posting page in a new tab. This is intentionally a browser-assisted launcher, not an API auto-poster. After you manually submit the listing, use **Mark posted** on that platform card to track whether it has actually been posted.
+Each generated platform draft includes a **Copy + open post** button that copies the formatted draft text and opens that marketplace's posting page in a new tab. Facebook Marketplace drafts also include a **Preview Facebook Post** button that renders a local Facebook-style visual mockup from the item photos and draft copy. This is intentionally a browser-assisted launcher and previewer, not an API auto-poster. After you manually submit the listing, use **Mark posted** on that platform card to track whether it has actually been posted.
 
 ## Local Development
 
