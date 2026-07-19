@@ -288,6 +288,62 @@ def test_facebook_preview_route_renders_marketplace_style_demo(tmp_path):
     assert b"scuff" not in preview_response.data.lower()
 
 
+def test_facebook_guide_route_renders_safe_manual_posting_assistant(tmp_path):
+    upload_dir = tmp_path / "uploads"
+    item_dir = upload_dir / "item-1"
+    item_dir.mkdir(parents=True)
+    (item_dir / "front.jpg").write_bytes(b"front")
+    catalog_path = tmp_path / "catalog.json"
+    catalog_path.write_text(
+        """{
+  "items": [
+    {
+      "id": "item-1",
+      "title": "2023 Subaru BRZ 6-Speed Manual",
+      "description": "World Rally Blue. Stock/no mods. No accidents or known mechanical issues.",
+      "price": "29500",
+      "photo_paths": ["uploads/item-1/front.jpg"],
+      "created_at": "2026-06-23T15:34:29+00:00",
+      "deadline_at": null,
+      "status": "ready",
+      "watch_count": 0,
+      "response_count": 0,
+      "source_folder": null
+    }
+  ]
+}""",
+        encoding="utf-8",
+    )
+    app.config.update(
+        TESTING=True,
+        UPLOAD_FOLDER=str(upload_dir),
+        CATALOG_PATH=str(catalog_path),
+        CATALOG_INBOX=str(tmp_path / "catalogue" / "inbox"),
+        CATALOG_ACTIVE=str(tmp_path / "catalogue" / "active"),
+        CATALOG_ARCHIVE=str(tmp_path / "catalogue" / "archive"),
+    )
+    client = app.test_client()
+
+    dashboard_response = client.get("/")
+    guide_response = client.get("/items/item-1/facebook-guide")
+
+    assert dashboard_response.status_code == 200
+    assert b"Guided Facebook Post" in dashboard_response.data
+    assert b'href="/items/item-1/facebook-guide"' in dashboard_response.data
+    assert guide_response.status_code == 200
+    assert b"Guided Facebook Posting" in guide_response.data
+    assert b"Stops before publish" in guide_response.data
+    assert b"Open Facebook create page" in guide_response.data
+    assert b"Copy title" in guide_response.data
+    assert b"Copy description" in guide_response.data
+    assert b"Download photo ZIP" in guide_response.data
+    assert b"Final publish stays manual" in guide_response.data
+    assert b"https://www.facebook.com/marketplace/create/item" in guide_response.data
+    assert b"2023 Subaru BRZ 6-Speed Manual" in guide_response.data
+    assert b"$29,500" in guide_response.data
+    assert b"scuff" not in guide_response.data.lower()
+
+
 def test_dashboard_renders_featured_photo_carousel(tmp_path):
     from PIL import Image
 

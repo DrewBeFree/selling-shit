@@ -247,6 +247,29 @@ def facebook_preview(item_id: str):
     )
 
 
+@app.route("/items/<item_id>/facebook-guide")
+def facebook_guide(item_id: str):
+    item = _store().get_item(item_id)
+    if item is None:
+        abort(404)
+
+    facebook_draft = next(
+        draft for draft in generate_platform_drafts(item) if draft.status_key == "facebook"
+    )
+    photo_urls = [
+        url_for("item_photo", item_id=item.id, photo_index=index, _external=True)
+        for index, _photo_path in enumerate(item.photo_paths)
+    ]
+    return render_template(
+        "facebook_guide.html",
+        item=item,
+        draft=facebook_draft,
+        photo_urls=photo_urls,
+        photo_count=len(photo_urls),
+        price_label=_format_listing_price(item.price),
+    )
+
+
 def _clean_choice(value: str | None, *, allowed: set[str], default: str) -> str:
     candidate = (value or "").strip()
     if candidate in allowed:

@@ -323,6 +323,7 @@
                     <div class="draft-actions">
                       {% if draft.status_key == "facebook" %}
                         <a class="preview-button facebook" href="{{ url_for('facebook_preview', item_id=item.id) }}" target="_blank" rel="noopener">Preview Facebook Post</a>
+                        <a class="preview-button facebook guide" href="{{ url_for('facebook_guide', item_id=item.id) }}" target="_blank" rel="noopener">Guided Facebook Post</a>
                       {% endif %}
                       <button class="post-button {{ draft.icon_class }}" type="button" data-post-url="{{ draft.post_url }}">Copy + open post</button>
                       <form method="post" action="{{ url_for('update_platform_status', item_id=item.id) }}">
