@@ -62,3 +62,30 @@ sell.drewbefree.com -> 188e5c59-c931-49a2-84c9-6646aadcd3c9.cfargotunnel.com
 ```
 
 That hostname should be a proxied Cloudflare CNAME/Tunnel record in the `drewbefree.com` zone and should be covered by the Drew-only Cloudflare Access application before public use.
+
+## Repository Map
+
+Quick navigation aid for maintainers:
+
+```
+.
+catalog_inbox
+catalog_inbox/Nintendo Switch - Zelda Controller
+catalogue
+catalogue/active
+catalogue/archive
+catalogue/inbox
+data
+data/backups
+deploy
+docs
+docs/superpowers
+env
+env/bin
+env/include
+env/lib
+__pycache__
+.pytest_cache
+.pytest_cache/v
+static
+```
