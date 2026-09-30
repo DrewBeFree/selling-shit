@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guided Facebook Posting — {{ item.title }}</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #f0f2f5;
+      color: #050505;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .topbar {
+      align-items: center;
+      background: #fff;
+      border-bottom: 1px solid #dddfe2;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      display: flex;
+      gap: 14px;
+      min-height: 56px;
+      padding: 10px 18px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .fb-dot {
+      background: #1877f2;
+      border-radius: 999px;
+      color: white;
+      display: grid;
+      font-size: 25px;
+      font-weight: 800;
+      height: 38px;
+      place-items: center;
+      width: 38px;
+    }
+    .muted { color: #65676b; font-size: 13px; }
+    .shell {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      margin: 24px auto 60px;
+      max-width: 1180px;
+      padding: 0 18px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+      overflow: hidden;
+    }
+    .hero { padding: 22px; }
+    .eyebrow {
+      color: #1877f2;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      margin: 0 0 8px;
+      text-transform: uppercase;
+    }
+    h1 { font-size: 30px; line-height: 1.1; margin: 0 0 8px; }
+    h2 { font-size: 20px; margin: 0 0 12px; }
+    h3 { font-size: 16px; margin: 0 0 8px; }
+    p { line-height: 1.45; }
+    .status-pill {
+      background: #e7f3ff;
+      border-radius: 999px;
+      color: #1877f2;
+      display: inline-flex;
+      font-weight: 800;
+      margin-top: 10px;
+      padding: 7px 11px;
+    }
+    .warning {
+      background: #fff8dd;
+      border: 1px solid #f3df8e;
+      border-radius: 10px;
+      color: #574600;
+      margin-top: 14px;
+      padding: 12px;
+    }
+    .step-list {
+      display: grid;
+      gap: 14px;
+      padding: 18px 22px 24px;
+    }
+    .step {
+      border: 1px solid #e4e6eb;
+      border-radius: 12px;
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 42px 1fr;
+      padding: 14px;
+    }
+    .step-number {
+      background: #1877f2;
+      border-radius: 999px;
+      color: white;
+      display: grid;
+      font-weight: 900;
+      height: 34px;
+      place-items: center;
+      width: 34px;
+    }
+    .field-grid {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .copy-row {
+      align-items: start;
+      display: grid;
+      gap: 8px;
+      grid-template-columns: 1fr auto;
+    }
+    textarea,
+    input {
+      background: #f7f8fa;
+      border: 1px solid #d8dbe2;
+      border-radius: 10px;
+      color: #050505;
+      font: inherit;
+      padding: 10px;
+      width: 100%;
+    }
+    textarea { min-height: 140px; resize: vertical; }
+    .button,
+    button {
+      background: #1877f2;
+      border: 0;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      display: inline-flex;
+      font-size: 14px;
+      font-weight: 800;
+      justify-content: center;
+      min-height: 40px;
+      padding: 10px 12px;
+      text-align: center;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .secondary { background: #e4e6eb; color: #050505; }
+    .sidebar {
+      align-self: start;
+      padding: 18px;
+      position: sticky;
+      top: 80px;
+    }
+    .summary-list {
+      display: grid;
+      gap: 8px;
+      margin: 12px 0 16px;
+    }
+    .summary-list div {
+      background: #f7f8fa;
+      border: 1px solid #e4e6eb;
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .summary-list b { color: #65676b; display: block; font-size: 12px; margin-bottom: 3px; text-transform: uppercase; }
+    .photo-strip {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(3, 1fr);
+      margin-top: 10px;
+    }
+    .photo-strip img {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      object-fit: cover;
+      width: 100%;
+    }
+    .toast {
+      background: #050505;
+      border-radius: 999px;
+      bottom: 20px;
+      color: white;
+      left: 50%;
+      opacity: 0;
+      padding: 10px 14px;
+      position: fixed;
+      transform: translate(-50%, 20px);
+      transition: opacity .16s ease, transform .16s ease;
+    }
+    .toast.visible { opacity: 1; transform: translate(-50%, 0); }
+    @media (max-width: 860px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      .copy-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="fb-dot">f</div>
+    <div>
+      <strong>Guided Facebook Posting</strong>
+      <div class="muted">Stops before publish — you stay in control of the final Facebook action.</div>
+    </div>
+  </div>
+
+  <main class="shell">
+    <section class="card">
+      <div class="hero">
+        <p class="eyebrow">Safe posting assistant</p>
+        <h1>{{ item.title }}</h1>
+        <p>This page prepares the exact fields and photos for Facebook Marketplace, opens the create page, and keeps the final publish manual.</p>
+        <span class="status-pill">Stops before publish</span>
+        <div class="warning"><strong>Final publish stays manual.</strong> This app does not log into Facebook, bypass approvals, or click Publish for you.</div>
+      </div>
+
+      <div class="step-list">
+        <article class="step">
+          <div class="step-number">1</div>
+          <div>
+            <h2>Open Facebook Marketplace</h2>
+            <p>Open Facebook's listing form in a new tab. Keep this guide open beside it.</p>
+            <a class="button" href="{{ draft.post_url }}" target="_blank" rel="noopener">Open Facebook create page</a>
+          </div>
+        </article>
+
+        <article class="step">
+          <div class="step-number">2</div>
+          <div>
+            <h2>Copy listing fields</h2>
+            <div class="field-grid">
+              <label>
+                Title
+                <div class="copy-row">
+                  <input id="titleField" value="{{ draft.title }}" readonly>
+                  <button type="button" data-copy-target="titleField">Copy title</button>
+                </div>
+              </label>
+              <label>
+                Price
+                <div class="copy-row">
+                  <input id="priceField" value="{{ price_label }}" readonly>
+                  <button type="button" data-copy-target="priceField">Copy price</button>
+                </div>
+              </label>
+              <label>
+                Description
+                <div class="copy-row">
+                  <textarea id="descriptionField" readonly>{{ draft.body }}</textarea>
+                  <button type="button" data-copy-target="descriptionField">Copy description</button>
+                </div>
+              </label>
+            </div>
+          </div>
+        </article>
+
+        <article class="step">
+          <div class="step-number">3</div>
+          <div>
+            <h2>Upload photos</h2>
+            <p>Facebook usually needs raw image files. Download the ZIP, unzip it, then upload the images into Facebook's photo box.</p>
+            {% if photo_count %}
+              <a class="button secondary" href="{{ url_for('item_photos_zip', item_id=item.id) }}">Download photo ZIP</a>
+              <div class="photo-strip">
+                {% for photo_url in photo_urls[:6] %}
+                  <img src="{{ photo_url }}" alt="{{ item.title }} photo {{ loop.index }}">
+                {% endfor %}
+              </div>
+            {% else %}
+              <p>No photos are attached to this item yet.</p>
+            {% endif %}
+          </div>
+        </article>
+
+        <article class="step">
+          <div class="step-number">4</div>
+          <div>
+            <h2>Review, then publish manually</h2>
+            <p>Check mileage, category, condition, location, title, price, and all photos inside Facebook. Only click Publish yourself after reviewing.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <aside class="card sidebar">
+      <h2>Prepared fields</h2>
+      <div class="summary-list">
+        <div><b>Title</b>{{ draft.title }}</div>
+        <div><b>Price</b>{{ price_label }}</div>
+        <div><b>Photos</b>{{ photo_count }}</div>
+        <div><b>Category hint</b>{{ draft.fields.category }}</div>
+        <div><b>Condition hint</b>{{ draft.fields.condition }}</div>
+      </div>
+      <a class="button secondary" href="{{ url_for('facebook_preview', item_id=item.id) }}">View visual preview</a>
+      <a class="button secondary" href="{{ url_for('home') }}" style="margin-top: 8px;">Back to dashboard</a>
+    </aside>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite">Copied</div>
+
+  <script>
+    const toast = document.querySelector("#toast");
+
+    async function copyText(value) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(value);
+        return;
+      }
+      const textarea = document.createElement("textarea");
+      textarea.value = value;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "fixed";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      textarea.remove();
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("visible");
+      setTimeout(() => toast.classList.remove("visible"), 1400);
+    }
+
+    document.querySelectorAll("[data-copy-target]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const target = document.querySelector(`#${button.dataset.copyTarget}`);
+        try {
+          await copyText(target.value);
+          showToast(`${button.textContent} copied`);
+        } catch (error) {
+          console.warn("Copy failed", error);
+          showToast("Copy failed");
+        }
+      });
+    });
+  </script>
+</body>
+</html>

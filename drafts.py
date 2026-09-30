@@ -4,7 +4,15 @@ from models import ListingItem, PlatformDraft
 
 
 def _price_text(item: ListingItem) -> str:
-    return f"${item.price}" if item.price else "Price TBD"
+    if not item.price:
+        return "Price TBD"
+    try:
+        amount = float(item.price.replace(",", ""))
+    except ValueError:
+        return f"${item.price}"
+    if amount.is_integer():
+        return f"${int(amount):,}"
+    return f"${amount:,.2f}"
 
 
 def generate_platform_drafts(item: ListingItem) -> list[PlatformDraft]:

@@ -48,6 +48,7 @@ class ListingItem:
     sold_price: str = ""
     notes: str = ""
     posted_platforms: dict[str, bool] = field(default_factory=dict)
+    posted_urls: dict[str, str] = field(default_factory=dict)
     watch_count: int = 0
     response_count: int = 0
     source_folder: str | None = None
@@ -99,6 +100,7 @@ class ListingItem:
             "sold_price": self.sold_price,
             "notes": self.notes,
             "posted_platforms": self.posted_platforms,
+            "posted_urls": self.posted_urls,
             "watch_count": self.watch_count,
             "response_count": self.response_count,
             "source_folder": self.source_folder,
@@ -125,6 +127,11 @@ class ListingItem:
             posted_platforms={
                 str(platform): bool(posted)
                 for platform, posted in dict(data.get("posted_platforms", {})).items()
+            },
+            posted_urls={
+                str(platform): str(url)
+                for platform, url in dict(data.get("posted_urls", {})).items()
+                if url
             },
             watch_count=int(data.get("watch_count", 0)),
             response_count=int(data.get("response_count", 0)),

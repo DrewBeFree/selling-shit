@@ -2,7 +2,7 @@
 
 Marketplace listing draft dashboard for turning item photos and rough notes into platform-specific drafts for Nextdoor, eBay, and Facebook Marketplace.
 
-Each generated platform draft includes a **Copy + open post** button that copies the formatted draft text and opens that marketplace's posting page in a new tab. This is intentionally a browser-assisted launcher, not an API auto-poster. After you manually submit the listing, use **Mark posted** on that platform card to track whether it has actually been posted.
+Each generated platform draft includes a **Copy + open post** button that copies the formatted draft text and opens that marketplace's posting page in a new tab. Facebook Marketplace drafts also include a **Preview Facebook Post** button that renders a local Facebook-style visual mockup from the item photos and draft copy, plus a **Guided Facebook Post** button that walks through opening Facebook, copying fields, downloading photos, and stopping before manual publish. This is intentionally a browser-assisted launcher and previewer, not an API auto-poster. After you manually submit the listing, use **Mark posted** on that platform card to track whether it has actually been posted.
 
 ## Local Development
 
@@ -62,3 +62,30 @@ sell.drewbefree.com -> 188e5c59-c931-49a2-84c9-6646aadcd3c9.cfargotunnel.com
 ```
 
 That hostname should be a proxied Cloudflare CNAME/Tunnel record in the `drewbefree.com` zone and should be covered by the Drew-only Cloudflare Access application before public use.
+
+## Repository Map
+
+Quick navigation aid for maintainers:
+
+```
+.
+catalog_inbox
+catalog_inbox/Nintendo Switch - Zelda Controller
+catalogue
+catalogue/active
+catalogue/archive
+catalogue/inbox
+data
+data/backups
+deploy
+docs
+docs/superpowers
+env
+env/bin
+env/include
+env/lib
+__pycache__
+.pytest_cache
+.pytest_cache/v
+static
+```

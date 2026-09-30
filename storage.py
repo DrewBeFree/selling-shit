@@ -2,11 +2,15 @@ from __future__ import annotations
 
 import json
 import re
-from pathlib import Path
+from datetime import timedelta
 from decimal import Decimal, InvalidOperation
+from pathlib import Path
 from uuid import uuid4
 
-from models import ListingItem, utc_now
+from models import ListingItem, format_time_delta, utc_now
+
+
+PLATFORM_KEYS = ("nextdoor", "ebay", "facebook")
 
 
 class CatalogStore:
@@ -87,16 +91,30 @@ class CatalogStore:
     def get_item(self, item_id: str) -> ListingItem | None:
         return next((item for item in self.list_all_items() if item.id == item_id), None)
 
-    def summary(self) -> dict[str, int]:
+    def summary(self) -> dict[str, object]:
         items = self.list_items()
         all_items = self.list_all_items()
         live_items = [item for item in items if item.status != "sold"]
         sold_items = [item for item in all_items if _is_sold(item)]
+        sellable_items = [item for item in all_items if _is_sellable(item)]
         oldest_live = min((item.created_at for item in live_items), default=None)
+        platform_gap_total, platform_gaps = _platform_gaps(items)
+        auction_due_items = _auction_due_items(live_items)
+        next_auction_deadline = min(
+            (
+                item.auction_ends_at
+                for item in live_items
+                if item.listing_type == "auction"
+                and item.auction_ends_at is not None
+                and item.auction_ends_at > utc_now()
+            ),
+            default=None,
+        )
         return {
             "total": len(items),
             "drafting": sum(1 for item in items if item.status == "drafting"),
             "ready": sum(1 for item in items if item.status == "ready"),
+            "listed": sum(1 for item in items if item.status == "listed"),
             "sold": len(sold_items),
             "responses": sum(item.response_count for item in items),
             "live_value": _money(sum((_money_value(item.price) for item in live_items), Decimal("0"))),
@@ -110,6 +128,29 @@ class CatalogStore:
                 )
             ),
             "listing_age": _age_label(oldest_live),
+            "needs_photos": sum(1 for item in live_items if not item.photo_paths),
+            "needs_details": sum(1 for item in live_items if _needs_details(item)),
+            "stale_drafts": sum(1 for item in items if _is_stale_draft(item)),
+            "platform_gap_total": platform_gap_total,
+            "platform_gaps": platform_gaps,
+            "auction_due": len(auction_due_items),
+            "auction_ended": sum(
+                1
+                for item in auction_due_items
+                if item.auction_ends_at is not None and item.auction_ends_at <= utc_now()
+            ),
+            "next_auction_deadline": (
+                format_time_delta(next_auction_deadline, expired_label="Ended")
+                if next_auction_deadline
+                else "None scheduled"
+            ),
+            "avg_live_age": _format_days_average(_average_live_age_days(live_items)),
+            "conversion_rate": _percent(len(sold_items), len(sellable_items)),
+            "sold_30d": sum(1 for item in sold_items if _sold_within_days(item, 30)),
+            "response_rate": _percent(
+                sum(1 for item in live_items if item.response_count > 0),
+                len(live_items),
+            ),
         }
 
     def _read(self) -> dict[str, list[dict]]:
@@ -155,6 +196,85 @@ def _age_label(started_at) -> str:
     if days:
         return f"{days}d {hours}h"
     return f"{hours}h"
+
+
+def _needs_details(item: ListingItem) -> bool:
+    title = item.title.strip()
+    description = item.description.strip()
+    normalized_description = description.lower()
+    return (
+        not title
+        or title.lower().startswith("untitled")
+        or not description
+        or normalized_description in {"description needed.", "description needed"}
+        or len(description) < 12
+        or not item.price.strip()
+        or _money_value(item.price) <= 0
+    )
+
+
+def _is_stale_draft(item: ListingItem) -> bool:
+    return item.status == "drafting" and utc_now() - item.created_at >= timedelta(days=7)
+
+
+def _platform_gaps(items: list[ListingItem]) -> tuple[int, dict[str, int]]:
+    eligible_items = [item for item in items if item.status in {"ready", "listed"}]
+    gaps = {
+        platform: sum(
+            1 for item in eligible_items if not item.posted_platforms.get(platform, False)
+        )
+        for platform in PLATFORM_KEYS
+    }
+    total = sum(
+        1
+        for item in eligible_items
+        if any(not item.posted_platforms.get(platform, False) for platform in PLATFORM_KEYS)
+    )
+    return total, gaps
+
+
+def _auction_due_items(items: list[ListingItem]) -> list[ListingItem]:
+    return [
+        item
+        for item in items
+        if item.listing_type == "auction"
+        and item.auction_ends_at is not None
+        and item.auction_ends_at - utc_now() <= timedelta(hours=48)
+    ]
+
+
+def _average_live_age_days(items: list[ListingItem]) -> float | None:
+    if not items:
+        return None
+    seconds_per_day = 24 * 60 * 60
+    return sum(
+        (utc_now() - item.created_at).total_seconds() / seconds_per_day
+        for item in items
+    ) / len(items)
+
+
+def _format_days_average(days: float | None) -> str:
+    if days is None:
+        return "No live listings"
+    if days < 1:
+        return "<1d"
+    return f"{int(days)}d avg"
+
+
+def _percent(numerator: int, denominator: int) -> str:
+    if denominator == 0:
+        return "0%"
+    return f"{round((numerator / denominator) * 100)}%"
+
+
+def _is_sellable(item: ListingItem) -> bool:
+    return item.status in {"ready", "listed", "sold"} or (
+        item.status == "archived" and item.previous_status in {"ready", "listed", "sold"}
+    )
+
+
+def _sold_within_days(item: ListingItem, days: int) -> bool:
+    return item.sold_at is not None and item.sold_at >= utc_now() - timedelta(days=days)
 
 
 def _is_sold(item: ListingItem) -> bool:

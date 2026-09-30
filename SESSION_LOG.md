@@ -395,3 +395,44 @@ Tests: 30 passed.
 
 **Next up:**
 - Restart `selling-shit.service` after commit/push and verify `https://sell.drewbefree.com/` renders v0.2.3 with the instructions and posted labels.
+
+## 2026-07-19 (Facebook Marketplace visual preview)
+
+**What we did:**
+- Added a `Preview Facebook Post` dashboard action for Facebook Marketplace drafts.
+- Added `GET /items/<item-id>/facebook-preview`, rendering a Facebook Marketplace-style visual mockup using the item photos, generated draft, price, and status.
+- Kept posting behavior as browser-assisted: the app can preview/copy/open Facebook's create page, but it does not silently auto-post to Facebook Marketplace.
+- Updated generated draft price formatting to use thousands separators, e.g. `$29,500`.
+
+**Verification:**
+- Focused RED/GREEN test: `PYTHONPATH=. pytest -q tests/test_app.py::test_facebook_preview_route_renders_marketplace_style_demo` passed after implementation.
+- Full suite: `PYTHONPATH=. pytest -q` reported `33 passed`.
+- Isolated temporary server on `127.0.0.1:5091` returned HTTP 200 for `/` and `/items/brz-demo/facebook-preview`.
+- Browser visual smoke verified the preview page loaded BRZ photos, showed formatted price, and contained no scuff/glovebox mention.
+
+**Safety notes:**
+- No live Facebook posting/API integration was added.
+- Smoke test used `/tmp/selling-shit-brz-preview-demo` and did not touch the production catalog.
+
+**Next up:**
+- If Drew wants deeper posting assistance, add a guided checklist or browser-fill helper that stops before the final Facebook publish action. Avoid promising unattended Marketplace posting.
+
+## 2026-07-19 (guided Facebook posting assistant)
+
+**What we did:**
+- Added a `Guided Facebook Post` dashboard action for Facebook Marketplace draft cards.
+- Added `GET /items/<item-id>/facebook-guide`, a safe manual posting assistant with copy buttons for title, price, and description, a Facebook create-page launcher, photo ZIP download, thumbnails, and an explicit manual-publish boundary.
+- Kept the app on the safe side of Facebook automation: it does not log in, bypass approvals, or click Publish.
+
+**Verification:**
+- Focused RED/GREEN test: `PYTHONPATH=. pytest -q tests/test_app.py::test_facebook_guide_route_renders_safe_manual_posting_assistant` passed.
+- Full suite: `PYTHONPATH=. pytest -q` reported `34 passed`.
+- Isolated temporary server on `127.0.0.1:5092` returned HTTP 200 for `/` and `/items/brz-demo/facebook-guide`.
+- Browser visual smoke verified the guided page was readable, included copy buttons, Facebook launcher, photo ZIP, thumbnails, and no scuff/glovebox mention.
+
+**Safety notes:**
+- Live `selling-shit.service` restart was blocked by command approval guard, so the pushed code is not deployed until the service is restarted manually.
+- Smoke test used `/tmp/selling-shit-brz-guide-demo` and did not touch the production catalog.
+
+**Next up:**
+- Restart `selling-shit.service`, then verify `http://127.0.0.1:5055/` contains `Guided Facebook Post`.

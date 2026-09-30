@@ -1,5 +1,6 @@
 from io import BytesIO
 from pathlib import Path
+from zipfile import ZipFile
 
 from app import app
 
@@ -33,9 +34,9 @@ def test_pages_render_version_and_copyright_footer(tmp_path):
     home_response = client.get("/")
     archive_response = client.get("/archive")
 
-    assert b"v0.2.3" in home_response.data
+    assert b"v0.2.4" in home_response.data
     assert b"&copy; 2026 Andrew Webb" in home_response.data
-    assert b"v0.2.3" in archive_response.data
+    assert b"v0.2.4" in archive_response.data
     assert b"&copy; 2026 Andrew Webb" in archive_response.data
 
 
@@ -85,6 +86,14 @@ def test_listing_post_renders_draft_and_saves_upload(tmp_path):
     assert b"draft-post-payload" in response.data
     assert b"navigator.clipboard.writeText" in response.data
     assert b"window.open(button.dataset.postUrl" in response.data
+    assert b"Listing URL" in response.data
+    assert b'name="posted_url"' in response.data
+    assert b"Drag photos into marketplace upload boxes." in response.data
+    assert b"Copy photo links" in response.data
+    assert b"Download ZIP fallback" in response.data
+    assert b"Photos:" in response.data
+    assert b"data-photo-link=\"http://localhost/items/" in response.data
+    assert b"payload.photo_urls" in response.data
     assert b"/photos/0" in response.data
     saved_files = list((tmp_path / "catalogue" / "active").glob("*/desk_photo.jpg"))
     assert len(saved_files) == 1
@@ -177,6 +186,162 @@ def test_item_photo_route_serves_filename_with_url_fragments(tmp_path):
 
     assert response.status_code == 200
     assert response.data == b"photo"
+
+
+def test_item_photos_zip_route_downloads_all_raw_photos(tmp_path):
+    upload_dir = tmp_path / "uploads"
+    item_dir = upload_dir / "item-1"
+    item_dir.mkdir(parents=True)
+    (item_dir / "front.jpg").write_bytes(b"front")
+    (item_dir / "back.jpg").write_bytes(b"back")
+    catalog_path = tmp_path / "catalog.json"
+    catalog_path.write_text(
+        """{
+  "items": [
+    {
+      "id": "item-1",
+      "title": "Desk Lamp",
+      "description": "",
+      "price": "",
+      "photo_paths": ["uploads/item-1/front.jpg", "uploads/item-1/back.jpg"],
+      "created_at": "2026-06-23T15:34:29+00:00",
+      "deadline_at": null,
+      "status": "drafting",
+      "watch_count": 0,
+      "response_count": 0,
+      "source_folder": null
+    }
+  ]
+}""",
+        encoding="utf-8",
+    )
+    app.config.update(
+        TESTING=True,
+        UPLOAD_FOLDER=str(upload_dir),
+        CATALOG_PATH=str(catalog_path),
+        CATALOG_INBOX=str(tmp_path / "catalogue" / "inbox"),
+        CATALOG_ACTIVE=str(tmp_path / "catalogue" / "active"),
+        CATALOG_ARCHIVE=str(tmp_path / "catalogue" / "archive"),
+    )
+
+    response = app.test_client().get("/items/item-1/photos.zip")
+
+    assert response.status_code == 200
+    assert response.mimetype == "application/zip"
+    assert "Desk_Lamp-photos.zip" in response.headers["Content-Disposition"]
+    with ZipFile(BytesIO(response.data)) as archive:
+        assert archive.namelist() == ["01-front.jpg", "02-back.jpg"]
+        assert archive.read("01-front.jpg") == b"front"
+        assert archive.read("02-back.jpg") == b"back"
+
+
+def test_facebook_preview_route_renders_marketplace_style_demo(tmp_path):
+    upload_dir = tmp_path / "uploads"
+    item_dir = upload_dir / "item-1"
+    item_dir.mkdir(parents=True)
+    (item_dir / "front.jpg").write_bytes(b"front")
+    (item_dir / "interior.jpg").write_bytes(b"interior")
+    catalog_path = tmp_path / "catalog.json"
+    catalog_path.write_text(
+        """{
+  "items": [
+    {
+      "id": "item-1",
+      "title": "2023 Subaru BRZ 6-Speed Manual",
+      "description": "World Rally Blue. Stock/no mods. No accidents or known mechanical issues.",
+      "price": "29500",
+      "photo_paths": ["uploads/item-1/front.jpg", "uploads/item-1/interior.jpg"],
+      "created_at": "2026-06-23T15:34:29+00:00",
+      "deadline_at": null,
+      "status": "ready",
+      "watch_count": 0,
+      "response_count": 0,
+      "source_folder": null
+    }
+  ]
+}""",
+        encoding="utf-8",
+    )
+    app.config.update(
+        TESTING=True,
+        UPLOAD_FOLDER=str(upload_dir),
+        CATALOG_PATH=str(catalog_path),
+        CATALOG_INBOX=str(tmp_path / "catalogue" / "inbox"),
+        CATALOG_ACTIVE=str(tmp_path / "catalogue" / "active"),
+        CATALOG_ARCHIVE=str(tmp_path / "catalogue" / "archive"),
+    )
+    client = app.test_client()
+
+    dashboard_response = client.get("/")
+    preview_response = client.get("/items/item-1/facebook-preview")
+
+    assert dashboard_response.status_code == 200
+    assert b"Preview Facebook Post" in dashboard_response.data
+    assert b'href="/items/item-1/facebook-preview"' in dashboard_response.data
+    assert preview_response.status_code == 200
+    assert b"Marketplace demo preview" in preview_response.data
+    assert b"2023 Subaru BRZ 6-Speed Manual" in preview_response.data
+    assert b"$29,500" in preview_response.data
+    assert b"World Rally Blue" in preview_response.data
+    assert b"See all 2 photos" in preview_response.data
+    assert b"/items/item-1/photos/0" in preview_response.data
+    assert b"scuff" not in preview_response.data.lower()
+
+
+def test_facebook_guide_route_renders_safe_manual_posting_assistant(tmp_path):
+    upload_dir = tmp_path / "uploads"
+    item_dir = upload_dir / "item-1"
+    item_dir.mkdir(parents=True)
+    (item_dir / "front.jpg").write_bytes(b"front")
+    catalog_path = tmp_path / "catalog.json"
+    catalog_path.write_text(
+        """{
+  "items": [
+    {
+      "id": "item-1",
+      "title": "2023 Subaru BRZ 6-Speed Manual",
+      "description": "World Rally Blue. Stock/no mods. No accidents or known mechanical issues.",
+      "price": "29500",
+      "photo_paths": ["uploads/item-1/front.jpg"],
+      "created_at": "2026-06-23T15:34:29+00:00",
+      "deadline_at": null,
+      "status": "ready",
+      "watch_count": 0,
+      "response_count": 0,
+      "source_folder": null
+    }
+  ]
+}""",
+        encoding="utf-8",
+    )
+    app.config.update(
+        TESTING=True,
+        UPLOAD_FOLDER=str(upload_dir),
+        CATALOG_PATH=str(catalog_path),
+        CATALOG_INBOX=str(tmp_path / "catalogue" / "inbox"),
+        CATALOG_ACTIVE=str(tmp_path / "catalogue" / "active"),
+        CATALOG_ARCHIVE=str(tmp_path / "catalogue" / "archive"),
+    )
+    client = app.test_client()
+
+    dashboard_response = client.get("/")
+    guide_response = client.get("/items/item-1/facebook-guide")
+
+    assert dashboard_response.status_code == 200
+    assert b"Guided Facebook Post" in dashboard_response.data
+    assert b'href="/items/item-1/facebook-guide"' in dashboard_response.data
+    assert guide_response.status_code == 200
+    assert b"Guided Facebook Posting" in guide_response.data
+    assert b"Stops before publish" in guide_response.data
+    assert b"Open Facebook create page" in guide_response.data
+    assert b"Copy title" in guide_response.data
+    assert b"Copy description" in guide_response.data
+    assert b"Download photo ZIP" in guide_response.data
+    assert b"Final publish stays manual" in guide_response.data
+    assert b"https://www.facebook.com/marketplace/create/item" in guide_response.data
+    assert b"2023 Subaru BRZ 6-Speed Manual" in guide_response.data
+    assert b"$29,500" in guide_response.data
+    assert b"scuff" not in guide_response.data.lower()
 
 
 def test_dashboard_renders_featured_photo_carousel(tmp_path):
@@ -305,6 +470,18 @@ def test_dashboard_renders_listing_value_summary_and_marketplace_icons(tmp_path)
 
     assert response.status_code == 200
     assert b'analytics-panel' in response.data
+    assert b"Needs photos" in response.data
+    assert b"Needs details" in response.data
+    assert b"Stale drafts" in response.data
+    assert b"Post gaps" in response.data
+    assert b"ND" in response.data
+    assert b"Auction due" in response.data
+    assert b"Listed" in response.data
+    assert b"Avg live age" in response.data
+    assert b"Oldest live" in response.data
+    assert b"Conversion" in response.data
+    assert b"30d sold" in response.data
+    assert b"Response rate" in response.data
     assert b"Sold" in response.data
     assert b"Live value" in response.data
     assert b"Sold value" in response.data
@@ -498,6 +675,8 @@ def test_platform_status_route_marks_draft_posted_and_unposted(tmp_path):
     assert '"facebook": true' in saved
     assert b"Posted" in posted_response.data
     assert b"Mark not posted" in posted_response.data
+    assert b"Post gaps" in posted_response.data
+    assert b"ND 1 / eBay 1 / FB 0" in posted_response.data
 
     unposted_response = client.post(
         "/items/item-1/platform-status",
@@ -507,6 +686,7 @@ def test_platform_status_route_marks_draft_posted_and_unposted(tmp_path):
 
     assert unposted_response.status_code == 200
     assert '"facebook": false' in catalog_path.read_text(encoding="utf-8")
+    assert b"ND 1 / eBay 1 / FB 1" in unposted_response.data
 
 
 def test_archive_route_hides_item_from_dashboard_and_archive_page_shows_it(tmp_path):
